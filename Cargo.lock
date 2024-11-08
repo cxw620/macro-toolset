@@ -366,6 +366,7 @@ dependencies = [
  "foldhash",
  "md-5",
  "rand",
+ "ryu",
  "sha2",
 ]
 

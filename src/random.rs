@@ -89,6 +89,8 @@ macro_rules! random_string_fast {
 ///
 /// [xorshift*]: https://en.wikipedia.org/wiki/Xorshift#xorshift*
 pub fn fast_random() -> u64 {
+    #[cfg(not(feature = "macros-random-fast"))]
+    use std::hash::RandomState;
     use std::{
         cell::Cell,
         hash::{BuildHasher, Hasher},
@@ -97,9 +99,6 @@ pub fn fast_random() -> u64 {
 
     #[cfg(feature = "macros-random-fast")]
     use ::foldhash::fast::RandomState;
-
-    #[cfg(not(feature = "macros-random-fast"))]
-    use std::hash::RandomState;
 
     thread_local! {
         static RNG: Cell<Wrapping<u64>> = Cell::new(Wrapping(seed()));

@@ -314,10 +314,28 @@ macro_rules! impl_num_str {
             }
         )+
     };
+    (FLOAT: $($ty:ty) +) => {
+        $(
+            impl StringExtT for $ty {
+                #[inline]
+                fn push_to_string(self, string: &mut Vec<u8>) {
+                    #[cfg(not(feature = "macros-string-ext-ryu"))]
+                    {
+                        string.extend(self.to_string().into_bytes())
+                    }
+                    #[cfg(feature = "macros-string-ext-ryu")]
+                    {
+                        string.extend(ryu::Buffer::new().format(self).as_bytes())
+                    }
+                }
+            }
+        )*
+    }
 }
 
 impl_num_str!(UNSIGNED: u8 u16 u32 u64 u128 usize);
 impl_num_str!(SIGNED: i8 as u8; i16 as u16; i32 as u32; i64 as u64; i128 as u128; isize as usize);
+impl_num_str!(FLOAT: f32 f64);
 
 #[cfg(test)]
 mod test {
@@ -404,6 +422,41 @@ mod test {
         assert_eq!("123", (123_isize).to_string_ext());
         assert_eq!(isize::MAX.to_string(), (isize::MAX).to_string_ext());
         assert_eq!(isize::MIN.to_string(), (isize::MIN).to_string_ext());
+
+        assert_eq!("-inf", f32::NEG_INFINITY.to_string_ext());
+        assert_eq!("-inf", f64::NEG_INFINITY.to_string_ext());
+        assert_eq!("-1.0", (-1.0_f32).to_string_ext());
+        assert_eq!("-1.0", (-1.0_f64).to_string_ext());
+        #[cfg(feature = "macros-string-ext-ryu")]
+        assert_eq!(
+            "-1.23e-40",
+            (-0.000000000000000000000000000000000000000123_f32).to_string_ext()
+        );
+        #[cfg(not(feature = "macros-string-ext-ryu"))]
+        assert_eq!(
+            "-0.000000000000000000000000000000000000000123",
+            (-0.000000000000000000000000000000000000000123_f32).to_string_ext()
+        );
+        #[cfg(feature = "macros-string-ext-ryu")]
+        assert_eq!(
+            "-1.23e-40",
+            (-0.000000000000000000000000000000000000000123_f64).to_string_ext()
+        );
+        #[cfg(not(feature = "macros-string-ext-ryu"))]
+        assert_eq!(
+            "-0.000000000000000000000000000000000000000123",
+            (-0.000000000000000000000000000000000000000123_f64).to_string_ext()
+        );
+        assert_eq!("-4.242", (-4.242_f32).to_string_ext());
+        assert_eq!("-4.242", (-4.242_f64).to_string_ext());
+        assert_eq!("0.0", (0.0_f32).to_string_ext());
+        assert_eq!("0.0", (0.0_f64).to_string_ext());
+        assert_eq!("1.0", (1.0_f32).to_string_ext());
+        assert_eq!("1.0", (1.0_f64).to_string_ext());
+        assert_eq!("4.242", (4.242_f32).to_string_ext());
+        assert_eq!("4.242", (4.242_f64).to_string_ext());
+        assert_eq!("inf", f32::INFINITY.to_string_ext());
+        assert_eq!("inf", f64::INFINITY.to_string_ext());
     }
 
     #[test]

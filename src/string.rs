@@ -730,8 +730,10 @@ macro_rules! impl_ref_deref {
 }
 
 impl_ref_deref!(bool, &bool, char, &char);
-impl_ref_deref!(u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize);
-impl_ref_deref!(&u8, &u16, &u32, &u64, &u128, &usize, &i8, &i16, &i32, &i64, &i128, &isize);
+impl_ref_deref!(u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize, f32, f64);
+impl_ref_deref!(
+    &u8, &u16, &u32, &u64, &u128, &usize, &i8, &i16, &i32, &i64, &i128, &isize, &f32, &f64
+);
 impl_ref_deref!(T => Box<T>);
 
 // === extend utilities ===
