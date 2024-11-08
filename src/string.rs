@@ -9,7 +9,7 @@ use std::{borrow::Cow, ops, rc::Rc, sync::Arc};
 // re-export
 pub use base64::{padding, Base64Str};
 // re-export
-pub use hex::{HexStr, RawBuffer};
+pub use hex::HexStr;
 // re-export
 pub use number::NumStr;
 

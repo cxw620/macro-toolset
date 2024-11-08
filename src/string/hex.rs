@@ -94,21 +94,9 @@ impl<const N: usize, const P: bool, const U: bool> StringExtT for HexStr<'_, N, 
     }
 }
 
-#[derive(Debug)]
-/// Simple wrapper over [`const_hex::Buffer`] that implements [`StringExtT`](super::StringExtT).
-///
-/// Just create a [`const_hex::Buffer`] then [`Into::into`]!
-pub struct RawBuffer<const N: usize, const P: bool = false>(const_hex::Buffer<N, P>);
-
-impl<const N: usize, const P: bool> From<const_hex::Buffer<N, P>> for RawBuffer<N, P> {
-    fn from(value: const_hex::Buffer<N, P>) -> Self {
-        Self(value)
-    }
-}
-
-impl<const N: usize, const P: bool> StringExtT for RawBuffer<N, P> {
+impl<const N: usize, const P: bool> StringExtT for const_hex::Buffer<N, P> {
     fn push_to_string(self, string: &mut Vec<u8>) {
-        string.extend(self.0.as_bytes())
+        string.extend(self.as_bytes())
     }
 }
 
