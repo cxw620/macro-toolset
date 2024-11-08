@@ -1,9 +1,10 @@
-//! Dev deps: macros
+//! Dev deps: some useful macros.
 
 #[cfg(feature = "macros-base64")]
 pub mod base64;
 #[cfg(feature = "macros-hash")]
 pub mod hash;
+#[cfg(feature = "macros-random")]
 pub mod random;
 #[cfg(feature = "macros-string")]
 pub mod string;
@@ -15,8 +16,7 @@ pub mod string;
 /// # Example
 ///
 /// ```rust
-/// use macro_toolset::now;
-///
+/// # use macro_toolset::now;
 /// let now_ts_sec = now!().as_secs(); // Seconds since UNIX_EPOCH
 /// let now_ts_millis = now!().as_millis(); // Milliseconds since UNIX_EPOCH
 /// ```

@@ -1,9 +1,17 @@
 [package]
 name = "macro-toolset"
-version = "0.1.1"
-authors = ["Hantong Chen"]
+version = "0.2.0"
 edition = "2021"
-rust-version = "1.64"
+rust-version = "1.66"
+
+# === Publication info ===
+authors = ["Hantong Chen <cxwdyx620@gmail.com>"]
+categories = ["development-tools"]
+description = "Some useful macros"
+keywords = ["macro", "string"]
+license = "GPL-3.0-only"
+readme = "README.md"
+repository = "https://github.com/cxw620/macro-toolset"
 
 [dependencies]
 # Dev
@@ -12,17 +20,21 @@ bytes = { version = "1.8", optional = true }
 
 # Encryption
 const-hex = { version = "1.13", optional = true }
-sha2 = { version = "0.10", optional = true }
+foldhash = { version = "0.1", optional = true }
 
 [dev-dependencies]
+base64 = "0.22"
+bytes = "1.8"
+criterion = "0.5"
 md-5 = "0.10"
 rand = "0.8"
+sha2 = "0.10"
 
 [features]
 default = ["full"]
 
 # Full features
-full = ["macros-base64", "macros-hash", "macros-string-sha256"]
+full = ["macros-base64", "macros-hash", "macros-random", "macros-string"]
 
 # Base64 related
 macros-base64 = ["dep:base64", "dep:bytes"]
@@ -30,6 +42,35 @@ macros-base64 = ["dep:base64", "dep:bytes"]
 # Hash related
 macros-hash = ["dep:const-hex"]
 
+# Random related
+macros-random = ["dep:foldhash"]
+
 # StringExt related
-macros-string = ["dep:bytes"]
-macros-string-sha256 = ["macros-string", "dep:sha2"]
+macros-string = ["dep:const-hex"]
+
+# === Benchmarks ===
+[[bench]]
+name = "string"
+path = "benches/string.rs"
+harness = false
+
+# === Lints ===
+[lints.rust]
+unsafe_code = "warn"
+missing_docs = "warn"
+missing_debug_implementations = "warn"
+unreachable_pub = "warn"
+
+[lints.clippy]
+await_holding_lock = "warn"
+dbg_macro = "warn"
+doc_markdown = "warn"
+empty_enum = "warn"
+enum_glob_use = "warn"
+inefficient_to_string = "warn"
+mem_forget = "warn"
+mutex_integer = "warn"
+needless_continue = "warn"
+todo = "warn"
+unimplemented = "warn"
+wildcard_imports = "warn"

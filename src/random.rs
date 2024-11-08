@@ -1,23 +1,37 @@
 //! Random number / string generation utilities
 
 #[macro_export]
-/// Gen random string
+/// Generate random string.
 ///
 /// # Example
 ///
 /// Just add `rand = "0.8"` to your crate deps then try:
 ///
 /// ```rust
-/// use macro_toolset::random_string;
-///
-/// let rs_1 = random_string!(32); // Use default charset `b"0123456789abcdef"`
+/// # use macro_toolset::random_string;
+/// #
+/// // Use default charset `b"0123456789abcdef"`
+/// let rs_1 = random_string!(32);
+/// # assert_eq!(rs_1.len(), 32);
+/// // Use custom charset
 /// let rs_2 = random_string!(32, b"0123456789abcdefABCDEF");
+/// # assert_eq!(rs_2.len(), 32);
+/// // Provide your own string and the randon string will be appended to it
+/// # let mut your_own_string = "test".to_string();
+/// random_string!(STR = your_own_string; 32);
+/// # assert_eq!(&your_own_string[0..4], "test");
+/// # assert_eq!(your_own_string.len(), 36);
+/// // Of course, custom charset is supported
+/// # let mut your_own_string = "test".to_string();
+/// random_string!(STR = your_own_string; 32, b"0123456789abcdefABCDEF");
+/// # assert_eq!(&your_own_string[0..4], "test");
+/// # assert_eq!(your_own_string.len(), 36);
 /// ```
 macro_rules! random_string {
     (STR = $string:expr; $range:expr, $charset:expr) => {{
-        use rand::Rng;
+        use ::rand::Rng;
 
-        let mut rng = rand::thread_rng();
+        let mut rng = ::rand::thread_rng();
         (0..$range)
             .for_each(|_| {
                 let idx = rng.gen_range(0..$charset.len());
@@ -28,9 +42,9 @@ macro_rules! random_string {
         $crate::random_string!(STR = $string; $range, b"0123456789abcdef")
     };
     ($range:expr, $charset:expr) => {{
-        use rand::Rng;
+        use ::rand::Rng;
 
-        let mut rng = rand::thread_rng();
+        let mut rng = ::rand::thread_rng();
         (0..$range)
             .map(|_| {
                 let idx = rng.gen_range(0..$charset.len());
@@ -43,11 +57,12 @@ macro_rules! random_string {
     };
 }
 
-#[cfg(target_pointer_width = "64")]
+#[cfg(feature = "macros-string")]
 #[macro_export]
-/// Gen random string base on xor-shift algorithm
+/// Generate random string base on xor-shift algorithm.
 ///
-/// Notice: Valid length of string is always <= 32 (u64)
+/// Notice: Length of string should be always <= 32 (u64)
+///
 /// # Example
 ///
 /// ```rust
@@ -62,26 +77,32 @@ macro_rules! random_string {
 macro_rules! random_string_fast {
     ($b:expr, $l:expr) => {{
         use $crate::string::StringExtT;
-        $crate::string::HexStr::hex::<$b, $l, 0>($crate::random::fast_random() as usize)
+        $crate::string::NumStr::new_default_hex($crate::random::fast_random())
+            .set_uppercase::<$b>()
             .to_string_ext()
     }};
 }
 
-#[cfg(target_pointer_width = "64")]
 #[inline]
-/// xor-shift random number generator
+/// [xorshift*] is a fast pseudorandom number generator which will
+/// even tolerate weak seeding, as long as it's not zero.
+///
+/// [xorshift*]: https://en.wikipedia.org/wiki/Xorshift#xorshift*
 pub fn fast_random() -> u64 {
-    use std::cell::Cell;
-    use std::collections::hash_map::RandomState;
-    use std::hash::{BuildHasher, Hasher};
-    use std::num::Wrapping;
+    use std::{
+        cell::Cell,
+        hash::{BuildHasher, Hasher},
+        num::Wrapping,
+    };
+
+    use ::foldhash::fast::RandomState;
 
     thread_local! {
         static RNG: Cell<Wrapping<u64>> = Cell::new(Wrapping(seed()));
     }
 
     fn seed() -> u64 {
-        let seed = RandomState::new();
+        let seed = RandomState::default();
 
         let mut out = 0;
         let mut cnt = 0;
@@ -106,15 +127,17 @@ pub fn fast_random() -> u64 {
 }
 
 #[macro_export]
-/// Generates a random string by choosing ones from given candidates.
+/// Generate a random string by choosing ones from given candidates.
 ///
 /// Candidates should be `Vec<&str>` or `[&'a str]`.
 ///
 /// # Examples
 ///
-/// ```
-/// use macro_toolset::random_choice;
+/// Here's an example rewritten from the original JavaScript code.
 ///
+/// ```
+/// # use macro_toolset::random_choice;
+/// #
 /// static DIGHT_MAP: [&'static str; 17] = [
 /// "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "10",
 /// ];
@@ -124,19 +147,19 @@ pub fn fast_random() -> u64 {
 /// ```
 macro_rules! random_choice {
     ($range:expr, $choice_set:expr) => {{
-        let mut rng = rand::thread_rng();
+        let mut rng = ::rand::thread_rng();
         let mut result = String::with_capacity(32);
         (0..$range).for_each(|_| {
-            result.push_str($choice_set[rand::Rng::gen_range(&mut rng, 0..$choice_set.len())]);
+            result.push_str($choice_set[::rand::Rng::gen_range(&mut rng, 0..$choice_set.len())]);
         });
         result
     }};
     ($($range:expr),+; $split:expr; $choice_set:expr) => {{
-        let mut rng = rand::thread_rng();
+        let mut rng = ::rand::thread_rng();
         let mut result = String::with_capacity(32);
         $(
             (0..$range).for_each(|_| {
-                result.push_str($choice_set[rand::Rng::gen_range(&mut rng, 0..$choice_set.len())]);
+                result.push_str($choice_set[::rand::Rng::gen_range(&mut rng, 0..$choice_set.len())]);
             });
             result.push_str($split);
         )+
