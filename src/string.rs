@@ -303,9 +303,51 @@ impl ops::Deref for StringExt {
     }
 }
 
+// === Core Impls ===
+
 /// Trait for pushing any value that can be converted into str to [`StringExt`]
 ///
 /// If needed, you can implement this trait for your own type.
+///
+/// The type we support currently:
+///
+/// - [`()`]: will be a no-op
+/// - [`bool`]: string `true` or `false`.
+/// - [`char`]
+/// - Any (smart) pointer that implements [`ops::Deref`] with target `str`.
+///
+///   Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have to do so manually.
+///
+///   - &[`str`]
+///   - [`String`]
+///   - [`Rc<str>`]
+///   - [`Rc<String>`]
+///   - [`Arc<str>`]
+///   - [`Arc<String>`]
+///   - [`Box<String>`] // Actually meanless
+///   - [`Cow<str>`]
+/// - Numbers, see [`NumStr`]
+/// - Hex string, see [`HexStr`], including [`const_hex::Buffer`]
+/// - Slice of any type that implements [`StringExtT`], including &[\[T\]] or [\[T; N\]],
+/// - [`Vec`] of any type that implements [`StringExtT`]
+/// - Iterator with item that implements [`StringExtT`]
+///
+///   Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have to do so manually.
+///
+///   - [`std::iter::Map`]
+/// - [`Box`] of any type that implements [`StringExtT`]
+/// - [`Option`] of any type that implements [`StringExtT`]
+/// - Tuple of any type that implements [`StringExtT`]
+/// - Any type that implements [`Copy`], just copy it.
+///
+///   Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have to do so manually.
+///
+///   - [`bool`]
+///   - [`char`]
+///   - &[`str`]
+///   - Numbers, including
+///     - [`u8`], [`u16`], [`u32`], [`u64`], [`u128`], [`usize`],
+///     - [`i8`], [`i16`], [`i32`], [`i64`], [`i128`], [`isize`]
 pub trait StringExtT: Sized {
     /// Push the value to the string.
     fn push_to_string(self, string: &mut Vec<u8>);
@@ -355,6 +397,13 @@ impl StringExtT for () {
     }
 }
 
+impl StringExtT for bool {
+    #[inline]
+    fn push_to_string(self, string: &mut Vec<u8>) {
+        string.extend(if self { &b"true"[..] } else { &b"false"[..] });
+    }
+}
+
 impl StringExtT for char {
     #[inline]
     fn push_to_string(self, string: &mut Vec<u8>) {
@@ -366,146 +415,58 @@ impl StringExtT for char {
     }
 }
 
-impl StringExtT for String {
-    #[inline]
-    fn push_to_string(self, string: &mut Vec<u8>) {
-        string.extend(self.as_bytes());
-    }
-
-    #[inline]
-    fn to_string_ext(self) -> String {
-        self
-    }
-}
-
-macro_rules! impl_for_str {
+/// Any (smart) pointer that implements [`ops::Deref`] with target `str`.
+///
+/// Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have to do so manually.
+///
+///   - &[`str`]
+/// - Smart pointer types:
+///   - [`String`]
+///   - [`Rc<str>`]
+///   - [`Rc<String>`]
+///   - [`Arc<str>`]
+///   - [`Arc<String>`]
+///   - [`Cow<str>`]
+macro_rules! impl_for_string {
     ($($ty:ty),*) => {
         $(
-            impl StringExtT for $ty {
-                #[inline]
-                fn push_to_string(self, string: &mut Vec<u8>) {
-                    string.extend(self.as_bytes());
-                }
-            }
+            impl_for_string!(INTERNAL IMPL $ty);
+            impl_for_string!(INTERNAL IMPL &$ty);
+            impl_for_string!(INTERNAL IMPL &&$ty);
         )*
     };
-}
-
-macro_rules! impl_for_ref_copied {
-    ($($ty:ty),*) => {
-        $(
-            impl StringExtT for &$ty {
-                #[inline]
-                fn push_to_string(self, string: &mut Vec<u8>) {
-                    (*self).push_to_string(string);
-                }
-
-                #[inline]
-                fn push_to_string_with_separator(self, string: &mut Vec<u8>, separator: impl SeparatorT) {
-                    (*self).push_to_string_with_separator(string, separator);
-                }
-
-                #[inline]
-                fn to_string_ext(self) -> String {
-                    (*self).to_string_ext()
-                }
-
-                #[inline]
-                fn to_string_ext_with_sep(self, separator: impl SeparatorT) -> String {
-                    (*self).to_string_ext_with_sep(separator)
-                }
-            }
-        )*
-    };
-}
-
-macro_rules! impl_for_tuple {
-    ( $( $name:ident )+ ) => {
-        #[allow(non_snake_case)]
-        impl<$($name: StringExtT),+> StringExtT for ($($name,)+)
-        {
+    (INTERNAL IMPL $ty:ty) => {
+        impl StringExtT for $ty {
             #[inline]
             fn push_to_string(self, string: &mut Vec<u8>) {
-                let ($($name,)+) = self;
-                $($name.push_to_string(string);)+
+                string.extend(self.as_bytes());
             }
 
             #[inline]
-            fn push_to_string_with_separator(self, string: &mut Vec<u8>, separator: impl SeparatorT) {
-                let ($($name,)+) = self;
-                $(
-                    $name.push_to_string_with_separator(string, separator);
-                )+
+            fn to_string_ext(self) -> String {
+                // optimize for String
+                self.to_string()
+            }
+
+            #[inline]
+            fn to_string_ext_with_sep(self, separator: impl SeparatorT) -> String {
+                let mut string = StringExt::with_capacity(self.len() + 4);
+                string.push_with_separator(self, separator);
+                string.into_string_remove_tail(separator)
             }
         }
-    };
+    }
 }
 
-impl_for_str!(
+impl_for_string!(
+    &str,
+    String,
     Rc<str>,
     Rc<String>,
     Arc<str>,
     Arc<String>,
-    &str,
-    &String,
-    Cow<'_, str>,
-    &Cow<'_, str>
+    Cow<'_, str>
 );
-impl_for_ref_copied!(char, &char, &str, &&str);
-
-impl_for_tuple!(T1);
-impl_for_tuple!(T1 T2);
-impl_for_tuple!(T1 T2 T3);
-impl_for_tuple!(T1 T2 T3 T4);
-impl_for_tuple!(T1 T2 T3 T4 T5);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 T21);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 T21 T22);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 T21 T22 T23);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 T21 T22 T23 T24);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 T21 T22 T23 T24 T25);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 T21 T22 T23 T24 T25 T26);
-impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 T21 T22 T23 T24 T25 T26 T27);
-
-impl<T> StringExtT for Vec<T>
-where
-    T: StringExtT,
-{
-    #[inline]
-    fn push_to_string(self, string: &mut Vec<u8>) {
-        for item in self {
-            item.push_to_string(string);
-        }
-    }
-
-    #[inline]
-    fn push_to_string_with_separator(self, string: &mut Vec<u8>, separator: impl SeparatorT) {
-        let is_empty = self.is_empty();
-
-        for item in self {
-            item.push_to_string_with_separator(string, separator);
-        }
-
-        if !is_empty {
-            separator.remove_end(string);
-            separator.push_to_string(string)
-        }
-    }
-}
 
 impl<T> StringExtT for &[T]
 where
@@ -549,6 +510,7 @@ where
         for item in self {
             item.push_to_string_with_separator(string, separator);
         }
+
         if N != 0 {
             separator.remove_end(string);
             separator.push_to_string(string)
@@ -562,7 +524,7 @@ where
 {
     #[inline]
     fn push_to_string(self, string: &mut Vec<u8>) {
-        for item in self.iter() {
+        for item in self {
             item.push_to_string(string);
         }
     }
@@ -572,6 +534,7 @@ where
         for item in self {
             item.push_to_string_with_separator(string, separator);
         }
+
         if N != 0 {
             separator.remove_end(string);
             separator.push_to_string(string)
@@ -579,8 +542,31 @@ where
     }
 }
 
-// ! cannot implement for Iterator directly, since compiler
-// ! would complain about conflicting implementations
+impl<T> StringExtT for Vec<T>
+where
+    T: StringExtT,
+{
+    #[inline]
+    fn push_to_string(self, string: &mut Vec<u8>) {
+        for item in self {
+            item.push_to_string(string);
+        }
+    }
+
+    #[inline]
+    fn push_to_string_with_separator(self, string: &mut Vec<u8>, separator: impl SeparatorT) {
+        let is_empty = self.is_empty();
+
+        for item in self {
+            item.push_to_string_with_separator(string, separator);
+        }
+
+        if !is_empty {
+            separator.remove_end(string);
+            separator.push_to_string(string)
+        }
+    }
+}
 
 impl<T, I, F> StringExtT for std::iter::Map<I, F>
 where
@@ -627,23 +613,124 @@ where
     }
 }
 
-impl<T: StringExtT> StringExtT for Box<T> {
-    fn push_to_string_with_separator(self, string: &mut Vec<u8>, separator: impl SeparatorT) {
-        (*self).push_to_string_with_separator(string, separator)
-    }
+/// - Tuple of any type that implements [`StringExtT`]
+macro_rules! impl_for_tuple {
+    ( $( $name:ident )+ ) => {
+        #[allow(non_snake_case)]
+        impl<$($name: StringExtT),+> StringExtT for ($($name,)+)
+        {
+            #[inline]
+            fn push_to_string(self, string: &mut Vec<u8>) {
+                let ($($name,)+) = self;
+                $($name.push_to_string(string);)+
+            }
 
-    fn to_string_ext(self) -> String {
-        (*self).to_string_ext()
-    }
-
-    fn push_to_string(self, string: &mut Vec<u8>) {
-        (*self).push_to_string(string);
-    }
-
-    fn to_string_ext_with_sep(self, separator: impl SeparatorT) -> String {
-        (*self).to_string_ext_with_sep(separator)
-    }
+            #[inline]
+            fn push_to_string_with_separator(self, string: &mut Vec<u8>, separator: impl SeparatorT) {
+                let ($($name,)+) = self;
+                $(
+                    $name.push_to_string_with_separator(string, separator);
+                )+
+            }
+        }
+    };
 }
+
+impl_for_tuple!(T1);
+impl_for_tuple!(T1 T2);
+impl_for_tuple!(T1 T2 T3);
+impl_for_tuple!(T1 T2 T3 T4);
+impl_for_tuple!(T1 T2 T3 T4 T5);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 T21);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 T21 T22);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 T21 T22 T23);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 T21 T22 T23 T24);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 T21 T22 T23 T24 T25);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 T21 T22 T23 T24 T25 T26);
+impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 T21 T22 T23 T24 T25 T26 T27);
+
+/// - Any type that implements [`Copy`], just copy it.
+///
+///   Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have to do so manually.
+///
+///   - [`bool`]
+///   - [`char`]
+///   - &[`str`]
+///   - Numbers, including
+///     - [`u8`], [`u16`], [`u32`], [`u64`], [`u128`], [`usize`],
+///     - [`i8`], [`i16`], [`i32`], [`i64`], [`i128`], [`isize`]
+macro_rules! impl_ref_deref {
+    ($($ty:ty),*) => {
+        $(
+            impl StringExtT for &$ty {
+                #[inline]
+                fn push_to_string(self, string: &mut Vec<u8>) {
+                    (*self).push_to_string(string);
+                }
+
+                #[inline]
+                fn push_to_string_with_separator(self, string: &mut Vec<u8>, separator: impl SeparatorT) {
+                    (*self).push_to_string_with_separator(string, separator);
+                }
+
+                #[inline]
+                fn to_string_ext(self) -> String {
+                    (*self).to_string_ext()
+                }
+
+                #[inline]
+                fn to_string_ext_with_sep(self, separator: impl SeparatorT) -> String {
+                    (*self).to_string_ext_with_sep(separator)
+                }
+            }
+        )*
+    };
+    ($($($ge:ident),* => $ty:ty),*) => {
+        $(
+            impl<$($ge: StringExtT)*> StringExtT for $ty {
+                #[inline]
+                fn push_to_string(self, string: &mut Vec<u8>) {
+                    (*self).push_to_string(string);
+                }
+
+                #[inline]
+                fn push_to_string_with_separator(self, string: &mut Vec<u8>, separator: impl SeparatorT) {
+                    (*self).push_to_string_with_separator(string, separator);
+                }
+
+                #[inline]
+                fn to_string_ext(self) -> String {
+                    (*self).to_string_ext()
+                }
+
+                #[inline]
+                fn to_string_ext_with_sep(self, separator: impl SeparatorT) -> String {
+                    (*self).to_string_ext_with_sep(separator)
+                }
+            }
+        )*
+    };
+}
+
+impl_ref_deref!(bool, &bool, char, &char);
+impl_ref_deref!(u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize);
+impl_ref_deref!(&u8, &u16, &u32, &u64, &u128, &usize, &i8, &i16, &i32, &i64, &i128, &isize);
+impl_ref_deref!(T => Box<T>);
 
 // === extend utilities ===
 
@@ -708,7 +795,7 @@ mod tests {
 
         // Cow<str>
         s.push(Cow::Borrowed("[Hello World � 😀]"));
-        s.push(Cow::Owned("[你好 � 😀]".to_owned()));
+        s.push(Cow::Owned("[你好 � 😀]".to_string()));
 
         // number
         s.push(0u8);
