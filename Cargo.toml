@@ -16,7 +16,6 @@ repository = "https://github.com/cxw620/macro-toolset"
 [dependencies]
 # Dev
 base64 = { version = "0.22", optional = true }
-bytes = { version = "1.8", optional = true }
 
 # Encryption
 const-hex = { version = "1.13", optional = true }
@@ -34,19 +33,21 @@ sha2 = "0.10"
 default = ["full"]
 
 # Full features
-full = ["macros-base64", "macros-hash", "macros-random", "macros-string"]
+full = ["macros-base64", "macros-hash", "macros-random-fast", "macros-string", "macros-string-ext-base64"]
 
 # Base64 related
-macros-base64 = ["dep:base64", "dep:bytes"]
+macros-base64 = []
 
 # Hash related
 macros-hash = ["dep:const-hex"]
 
 # Random related
-macros-random = ["dep:foldhash"]
+macros-random = []
+macros-random-fast = ["macros-random", "dep:foldhash"]
 
 # StringExt related
 macros-string = ["dep:const-hex"]
+macros-string-ext-base64 = ["dep:base64"]
 
 # === Benchmarks ===
 [[bench]]

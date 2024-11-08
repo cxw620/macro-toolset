@@ -95,7 +95,11 @@ pub fn fast_random() -> u64 {
         num::Wrapping,
     };
 
+    #[cfg(feature = "macros-random-fast")]
     use ::foldhash::fast::RandomState;
+
+    #[cfg(not(feature = "macros-random-fast"))]
+    use std::hash::RandomState;
 
     thread_local! {
         static RNG: Cell<Wrapping<u64>> = Cell::new(Wrapping(seed()));

@@ -1,11 +1,13 @@
 //! useful [`StringExt`] utilities for [`crate::str_concat`] macros
 
+#[cfg(feature = "macros-string-ext-base64")]
 mod base64;
 mod hex;
 mod number;
 
 use std::{borrow::Cow, ops, rc::Rc, sync::Arc};
 
+#[cfg(feature = "macros-string-ext-base64")]
 // re-export
 pub use base64::{padding, Base64Str};
 // re-export
