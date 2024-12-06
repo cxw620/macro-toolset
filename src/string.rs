@@ -4,6 +4,7 @@
 mod base64;
 mod hex;
 mod number;
+mod slice_sep;
 
 use std::{borrow::Cow, ops, rc::Rc, sync::Arc};
 
@@ -14,6 +15,8 @@ pub use base64::{padding, Base64Str};
 pub use hex::HexStr;
 // re-export
 pub use number::NumStr;
+// re-export
+pub use slice_sep::SliceSep;
 
 #[macro_export]
 /// Fast concat [`String`] / &[`str`] / number.
@@ -326,7 +329,7 @@ impl ops::Deref for StringExt {
 /// - Any (smart) pointer that implements [`ops::Deref`] with target `str`.
 ///
 ///   Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have
-/// to do so manually.
+///   to do so manually.
 ///
 ///   - &[`str`]
 ///   - [`String`]
@@ -344,7 +347,7 @@ impl ops::Deref for StringExt {
 /// - Iterator with item that implements [`StringExtT`]
 ///
 ///   Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have
-/// to do so manually.
+///   to do so manually.
 ///
 ///   - [`std::iter::Map`]
 /// - [`Box`] of any type that implements [`StringExtT`]
@@ -353,7 +356,7 @@ impl ops::Deref for StringExt {
 /// - Any type that implements [`Copy`], just copy it.
 ///
 ///   Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have
-/// to do so manually.
+///   to do so manually.
 ///
 ///   - [`bool`]
 ///   - [`char`]
@@ -681,7 +684,7 @@ impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T
 /// - Any type that implements [`Copy`], just copy it.
 ///
 ///   Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have
-/// to do so manually.
+///   to do so manually.
 ///
 ///   - [`bool`]
 ///   - [`char`]
