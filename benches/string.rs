@@ -12,44 +12,49 @@ use macro_toolset::{
 //     let mut group = c.benchmark_group("NumStr");
 
 //     group.bench_function("usize/123", |b| {
-//         b.iter(|| std::hint::black_box(NumStr::new_default(123_usize).encode()));
-//     });
+//         b.iter(||
+// std::hint::black_box(NumStr::new_default(123_usize).encode()));     });
 
 //     group.bench_function("usize/123_456", |b| {
-//         b.iter(|| std::hint::black_box(NumStr::new_default(123_456_usize).encode()));
-//     });
+//         b.iter(||
+// std::hint::black_box(NumStr::new_default(123_456_usize).encode()));     });
 
 //     group.bench_function("usize/123_456_789", |b| {
-//         b.iter(|| std::hint::black_box(NumStr::new_default(123_456_789_usize).encode()));
+//         b.iter(||
+// std::hint::black_box(NumStr::new_default(123_456_789_usize).encode()));
 //     });
 
 //     group.bench_function("usize/987_654_321", |b| {
-//         b.iter(|| std::hint::black_box(NumStr::new_default(987_654_321_usize).encode()));
+//         b.iter(||
+// std::hint::black_box(NumStr::new_default(987_654_321_usize).encode()));
 //     });
 
 //     group.bench_function("usize/usize::MAX", |b| {
-//         b.iter(|| std::hint::black_box(NumStr::new_default(usize::MAX).encode()));
-//     });
+//         b.iter(||
+// std::hint::black_box(NumStr::new_default(usize::MAX).encode()));     });
 
 //     // === u128 ===
 //     group.bench_function("u128/123", |b| {
-//         b.iter(|| std::hint::black_box(NumStr::new_default(123_u128).encode()));
-//     });
+//         b.iter(||
+// std::hint::black_box(NumStr::new_default(123_u128).encode()));     });
 
 //     group.bench_function("u128/123_456", |b| {
-//         b.iter(|| std::hint::black_box(NumStr::new_default(123_456_u128).encode()));
-//     });
+//         b.iter(||
+// std::hint::black_box(NumStr::new_default(123_456_u128).encode()));     });
 
 //     group.bench_function("u128/123_456_789", |b| {
-//         b.iter(|| std::hint::black_box(NumStr::new_default(123_456_789_u128).encode()));
+//         b.iter(||
+// std::hint::black_box(NumStr::new_default(123_456_789_u128).encode()));
 //     });
 
 //     group.bench_function("u128/987_654_321", |b| {
-//         b.iter(|| std::hint::black_box(NumStr::new_default(987_654_321_u128).encode()));
+//         b.iter(||
+// std::hint::black_box(NumStr::new_default(987_654_321_u128).encode()));
 //     });
 
 //     group.bench_function("u128/usize::MAX", |b| {
-//         b.iter(|| std::hint::black_box(NumStr::new_default(0xFFFFFFFFFFFFFFFF_u128).encode()));
+//         b.iter(||
+// std::hint::black_box(NumStr::new_default(0xFFFFFFFFFFFFFFFF_u128).encode()));
 //     });
 // }
 

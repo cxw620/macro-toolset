@@ -94,7 +94,8 @@ macro_rules! str_concat {
 #[derive(Debug, PartialEq, PartialOrd, Eq, Ord)]
 /// A string with extended utilities
 ///
-/// In most circumstances, it can be considered as a [`String`] with more utilities.
+/// In most circumstances, it can be considered as a [`String`] with more
+/// utilities.
 pub struct StringExt {
     inner: Vec<u8>,
 }
@@ -131,8 +132,9 @@ impl StringExt {
     ///
     /// # Safety
     ///
-    /// Just mark the inner Vec<u8> as mutable, but it's not safe to modify the Vec<u8> directly
-    /// and you must ensure the Vec<u8> is always valid utf8
+    /// Just mark the inner Vec<u8> as mutable, but it's not safe to modify the
+    /// Vec<u8> directly and you must ensure the Vec<u8> is always valid
+    /// utf8
     pub unsafe fn into_bytes(self) -> Vec<u8> {
         self.inner
     }
@@ -166,7 +168,8 @@ impl StringExt {
     }
 
     #[inline(always)]
-    /// Push a value to the string ends with given separator, which both implement [`StringExtT`]
+    /// Push a value to the string ends with given separator, which both
+    /// implement [`StringExtT`]
     ///
     /// Note: the separator will be pushed even if the value is empty.
     ///
@@ -218,7 +221,8 @@ impl StringExt {
 
     #[inline(always)]
     #[must_use]
-    /// Returns `true` if this `String` has a length of zero, and `false` otherwise.
+    /// Returns `true` if this `String` has a length of zero, and `false`
+    /// otherwise.
     pub fn is_empty(&self) -> bool {
         self.inner.is_empty()
     }
@@ -229,8 +233,9 @@ impl StringExt {
     ///
     /// # Safety
     ///
-    /// Just mark the inner Vec<u8> as mutable, but it's not safe to modify the Vec<u8> directly
-    /// and you must ensure the Vec<u8> is always valid utf8
+    /// Just mark the inner Vec<u8> as mutable, but it's not safe to modify the
+    /// Vec<u8> directly and you must ensure the Vec<u8> is always valid
+    /// utf8
     pub unsafe fn as_mut_vec(&mut self) -> &mut Vec<u8> {
         &mut self.inner
     }
@@ -246,9 +251,11 @@ impl StringExt {
     }
 
     #[inline]
-    /// Consume self and get the final String, removing the separator from the end of the string
+    /// Consume self and get the final String, removing the separator from the
+    /// end of the string
     ///
-    /// Notice: the separator char / string will be removed, even if it's from the original string!
+    /// Notice: the separator char / string will be removed, even if it's from
+    /// the original string!
     pub fn into_string_remove_tail(mut self, separator: impl SeparatorT) -> String {
         separator.remove_end(&mut self.inner);
         self.into_string()
@@ -318,7 +325,8 @@ impl ops::Deref for StringExt {
 /// - [`char`]
 /// - Any (smart) pointer that implements [`ops::Deref`] with target `str`.
 ///
-///   Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have to do so manually.
+///   Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have
+/// to do so manually.
 ///
 ///   - &[`str`]
 ///   - [`String`]
@@ -330,11 +338,13 @@ impl ops::Deref for StringExt {
 ///   - [`Cow<str>`]
 /// - Numbers, see [`NumStr`]
 /// - Hex string, see [`HexStr`], including [`const_hex::Buffer`]
-/// - Slice of any type that implements [`StringExtT`], including &[\[T\]] or [\[T; N\]],
+/// - Slice of any type that implements [`StringExtT`], including &[\[T\]] or
+///   [\[T; N\]],
 /// - [`Vec`] of any type that implements [`StringExtT`]
 /// - Iterator with item that implements [`StringExtT`]
 ///
-///   Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have to do so manually.
+///   Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have
+/// to do so manually.
 ///
 ///   - [`std::iter::Map`]
 /// - [`Box`] of any type that implements [`StringExtT`]
@@ -342,7 +352,8 @@ impl ops::Deref for StringExt {
 /// - Tuple of any type that implements [`StringExtT`]
 /// - Any type that implements [`Copy`], just copy it.
 ///
-///   Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have to do so manually.
+///   Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have
+/// to do so manually.
 ///
 ///   - [`bool`]
 ///   - [`char`]
@@ -419,7 +430,8 @@ impl StringExtT for char {
 
 /// Any (smart) pointer that implements [`ops::Deref`] with target `str`.
 ///
-/// Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have to do so manually.
+/// Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have to
+/// do so manually.
 ///
 ///   - &[`str`]
 /// - Smart pointer types:
@@ -668,7 +680,8 @@ impl_for_tuple!(T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T
 
 /// - Any type that implements [`Copy`], just copy it.
 ///
-///   Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have to do so manually.
+///   Since the compiler complains with MAYBE IMPLEMENTED BY UPSTREAM, we have
+/// to do so manually.
 ///
 ///   - [`bool`]
 ///   - [`char`]

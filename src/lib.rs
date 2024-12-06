@@ -10,8 +10,8 @@ pub mod random;
 pub mod string;
 
 #[macro_export]
-/// Faster way to get current timestamp other than `chrono::Local::now().timestamp()`,
-/// 12x faster on my machine.
+/// Faster way to get current timestamp other than
+/// `chrono::Local::now().timestamp()`, 12x faster on my machine.
 ///
 /// # Example
 ///

@@ -5,8 +5,8 @@
 ///
 /// # Param:
 ///  + `data`: impl [`AsRef`]<[u8]>
-///  + `padding`: `base64::engine::general_purpose::{}`, `STANDARD`(default) / `STANDARD_NO_PAD` /
-///    `URL_SAFE` / `URL_SAFE_NO_PAD`
+///  + `padding`: `base64::engine::general_purpose::{}`, `STANDARD`(default) /
+///    `STANDARD_NO_PAD` / `URL_SAFE` / `URL_SAFE_NO_PAD`
 ///
 /// # Example:
 ///
@@ -32,8 +32,8 @@ macro_rules! b64_encode {
 ///
 /// Param:
 ///  + `data`: impl [`AsRef`]<[u8]>
-///  + `padding`: `base64::engine::general_purpose::{}`, `STANDARD`(default) / `STANDARD_NO_PAD` /
-///    `URL_SAFE` / `URL_SAFE_NO_PAD`
+///  + `padding`: `base64::engine::general_purpose::{}`, `STANDARD`(default) /
+///    `STANDARD_NO_PAD` / `URL_SAFE` / `URL_SAFE_NO_PAD`
 ///
 /// # Example:
 ///
@@ -68,8 +68,8 @@ macro_rules! b64_encode_bytes {
 ///
 /// # Param:
 ///  + `data`
-///  + `padding`: `base64::engine::general_purpose::{}`, `STANDARD`(default) / `STANDARD_NO_PAD` /
-///    `URL_SAFE` / `URL_SAFE_NO_PAD`
+///  + `padding`: `base64::engine::general_purpose::{}`, `STANDARD`(default) /
+///    `STANDARD_NO_PAD` / `URL_SAFE` / `URL_SAFE_NO_PAD`
 ///
 /// # Example:
 /// ```

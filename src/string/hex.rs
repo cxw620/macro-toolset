@@ -10,7 +10,8 @@ use super::StringExtT;
 ///
 /// # Generic (TODO: Replace with bitflag?)
 ///
-/// - N: Length of target buffer, the length of the final string is 2*N (+1 if with prefix).
+/// - N: Length of target buffer, the length of the final string is 2*N (+1 if
+///   with prefix).
 /// - P: Prefix `0x`, default false
 /// - U: Uppercase, default false
 ///

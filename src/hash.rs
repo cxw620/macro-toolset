@@ -110,7 +110,8 @@ macro_rules! calc_hash_str {
 #[macro_export]
 /// Calculate Hash.
 ///
-/// Returns [`::const_hex::Buffer`], you may use [`::const_hex::Buffer::as_str`] to get the string.
+/// Returns [`::const_hex::Buffer`], you may use [`::const_hex::Buffer::as_str`]
+/// to get the string.
 ///
 /// # Examples
 ///

@@ -22,12 +22,15 @@ static HEX_CHARS_UPPER: [u8; 16] = [
 ///
 /// # Generic
 ///
-/// - `B`: the base of the number, should be within the range `2..=16`. Default is 10.
+/// - `B`: the base of the number, should be within the range `2..=16`. Default
+///   is 10.
 /// - `U`: whether to use uppercase for hex. Default is lowercase (false)
-/// - `R`: the resize length of the string. The overflow part will be truncated, and the
-///   insufficient part will be filled with '0'. Default is 0, or no resize.
-/// - `M`: the minimum length of the string, if the length of the string is less than `M`, fill with
-///   '0'.  Default is 0, or no minimum.  For signed number `M` will be ignored.
+/// - `R`: the resize length of the string. The overflow part will be truncated,
+///   and the insufficient part will be filled with '0'. Default is 0, or no
+///   resize.
+/// - `M`: the minimum length of the string, if the length of the string is less
+///   than `M`, fill with '0'.  Default is 0, or no minimum.  For signed number
+///   `M` will be ignored.
 ///
 /// - `T`: the underlying type of the number. Default is `usize`.
 ///
@@ -171,7 +174,8 @@ impl<const B: u8, const U: bool, const R: usize, const M: usize, T> NumStr<B, U,
     #[inline]
     /// Set whether to resize the string to `len` length.
     ///
-    /// The overflow part will be truncated, and the insufficient part will be filled with '0'
+    /// The overflow part will be truncated, and the insufficient part will be
+    /// filled with '0'
     ///
     /// Default is not resize
     ///
@@ -338,6 +342,7 @@ impl_num_str!(SIGNED: i8 as u8; i16 as u16; i32 as u32; i64 as u64; i128 as u128
 impl_num_str!(FLOAT: f32 f64);
 
 #[cfg(test)]
+#[allow(clippy::cognitive_complexity)]
 mod test {
     use crate::string::{NumStr, StringExtT};
 

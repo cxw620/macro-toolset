@@ -65,23 +65,83 @@ name = "string"
 path = "benches/string.rs"
 harness = false
 
-# === Lints ===
+# === Lints config ===
+
 [lints.rust]
 unsafe_code = "warn"
 missing_docs = "warn"
 missing_debug_implementations = "warn"
 unreachable_pub = "warn"
 
+# Only works in nightly channel, use `cargo +nightly clippy --fix --allow-dirty --allow-staged`
+
 [lints.clippy]
-await_holding_lock = "warn"
+# See: https://rust-lang.github.io/rust-clippy/master/index.html for more details.
+
+# Checks for attributes that allow lints without a reason.
+allow_attributes_without_reason = "warn"
+# Checks for `assert!(r.is_ok())` or `assert!(r.is_err())` calls, just `unwrap()` instead.
+assertions_on_result_states = "warn"
+# Checks for code like `foo = bar.clone()`; use `Clone::clone_from()` instead.
+assigning_clones = "warn"
+# Instead of using an if statement to convert a bool to an int, this lint suggests using a from() function or an as coercion.
+bool_to_int_with_if = "warn"
+# Checks for methods with high cognitive complexity.
+cognitive_complexity = "warn"
+# Checks usage of std::fs::create_dir and suggest using std::fs::create_dir_all instead.
+create_dir = "warn"
+# Checks for usage of the dbg! macro.
 dbg_macro = "warn"
+# Checks for function/method calls with a mutable parameter in debug_assert!, debug_assert_eq! and debug_assert_ne! macros.
+# Mutating something in a debug_assert! macro results in different behavior between a release and debug build.
+debug_assert_with_mut_call = "warn"
+# Checks for literal calls to `Default::default()`. Use `$type::default()` instead.
+default_trait_access = "warn"
+# Checks for types that derive PartialEq and could implement Eq.
+# derive_partial_eq_without_eq = "warn"
+# Checks for usage of unicode scripts other than those explicitly allowed by the lint config.
+disallowed_script_idents = "deny"
+# Detects the syntax ['foo'] in documentation comments (notice quotes instead of backticks) outside of code blocks
+doc_link_with_quotes = "warn"
+# Checks for the presence of _, :: or camel-case words outside ticks in documentation.
 doc_markdown = "warn"
-empty_enum = "warn"
+# Checks for usage of if expressions with an else if branch, but without a final else branch.
+else_if_without_else = "deny"
+# Checks for use Enum::*.
 enum_glob_use = "warn"
+# is_file doesn’t cover special file types in unix-like systems, and doesn’t cover symlink in windows.
+# Using !FileType::is_dir() is a better way
+filetype_is_file = "warn"
+# Checks for usage of .to_string() on an &&T where T implements ToString directly (like &&str or &&String).
 inefficient_to_string = "warn"
+# Checks for usage of std::mem::forget(t) where t is Drop or has a field that implements Drop.
 mem_forget = "warn"
+# Checks the doc comments of publicly visible functions that return a Result type and warns if there is no # Errors section.
+# missing_errors_doc = "warn"
+# Checks the doc comments of publicly visible functions that may panic and warns if there is no # Panics section.
+missing_panics_doc = "warn"
+# Checks that module layout uses only self named module files; bans mod.rs files.
+mod_module_files = "deny"
+# Checks for multiple inherent implementations of a struct
+multiple_inherent_impl = "warn"
+# Checks for usage of Mutex<X> where an atomic will do.
+mutex_atomic = "warn"
+# Checks for usage of Mutex<X> where X is an integral type. Use Atomic instead.
 mutex_integer = "warn"
+# The lint checks for if-statements appearing in loops that contain a continue statement in either their main blocks or their else-blocks, 
+# when omitting the else-block possibly with some rearrangement of code can make the code easier to understand.
 needless_continue = "warn"
+# Checks for usage of panic!.
+panic = "warn"
+# Checks for temporaries returned from function calls in a match scrutinee that have the clippy::has_significant_drop attribute.
+significant_drop_in_scrutinee = "warn"
+# Checks for usage of todo!.
 todo = "warn"
+# Checks for usage of unimplemented!.
 unimplemented = "warn"
+# Checks for usage of unreachable!.
+unreachable = "warn"
+# Checks for wildcard dependencies in the Cargo.toml.
+wildcard_dependencies = "deny"
+# Checks for wildcard imports use _::*
 wildcard_imports = "warn"
