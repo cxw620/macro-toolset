@@ -53,3 +53,62 @@ macro_rules! init_tracing_simple {
         tracing_subscriber::registry().with(fmt_layer).init();
     }};
 }
+
+#[macro_export]
+/// Helper macro for creating a wrapper type.
+///
+/// The wrapper type will implement [`Deref`](std::ops::Deref),
+/// [`DerefMut`](std::ops::DerefMut), [`From`] and [`AsRef`].
+///
+/// # Example
+///
+/// ```rust
+/// # use macro_toolset::wrapper;
+/// wrapper!(pub MyString => pub String);
+/// // derive is OK!
+/// wrapper!(pub MyStringDerived => pub String, derive(Debug, Clone, PartialEq, Eq, Hash));
+/// ```
+macro_rules! wrapper {
+    ($vis:vis $name:ident => $vis_inner:vis $inner:ty$(, derive($($derive:path),+))?) => {
+        $(#[derive($($derive),+)])?
+        #[doc = "Wrapper over "]
+        #[doc = concat!("[`", stringify!($inner), "`]")]
+        $vis struct $name($vis_inner $inner);
+
+        impl From<$inner> for $name {
+            #[inline]
+            fn from(inner: $inner) -> Self {
+                Self(inner)
+            }
+        }
+
+        impl std::ops::Deref for $name {
+            type Target = $inner;
+
+            fn deref(&self) -> &Self::Target {
+                &self.0
+            }
+        }
+
+        impl std::ops::DerefMut for $name {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.0
+            }
+        }
+
+        impl AsRef<$inner> for $name {
+            fn as_ref(&self) -> &$inner {
+                &self.0
+            }
+        }
+
+        impl $name {
+            #[inline]
+            #[doc = "Creates a new instance of"]
+            #[doc = concat!("[`", stringify!($name), "`]")]
+            $vis const fn new(inner: $inner) -> Self {
+                Self(inner)
+            }
+        }
+    };
+}
