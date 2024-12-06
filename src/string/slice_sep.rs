@@ -24,6 +24,17 @@ use super::{SeparatorT, StringExtT};
 /// );
 /// ```
 ///
+/// [Map](std::iter::Map) is accepted too.
+///
+/// ```
+/// # use macro_toolset::{slice_sep, str_concat};
+/// let slice_sep = slice_sep!(["a", "b", "c"].iter().map(|s| s.to_ascii_uppercase()), ',');
+/// assert_eq!(
+///     str_concat!("Hello: ", slice_sep, " World!"),
+///     "Hello: A,B,C World!"
+/// );
+/// ```
+///
 /// In fact all types that implements `StringExtT` can be used, though useless
 /// and do not do so.
 ///
