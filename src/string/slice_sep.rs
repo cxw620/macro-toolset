@@ -70,7 +70,7 @@ use super::{SeparatorT, StringExtT};
 ///
 /// To avoid this, you can use `slice_sep!` with an empty separator to avoid
 /// recognizing the contents as independent, while `()` is better:
-/// 
+///
 /// ```
 /// # use macro_toolset::{slice_sep, string::StringExtT};
 /// let post_ids = vec![1, 2, 3];
