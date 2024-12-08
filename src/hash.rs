@@ -6,9 +6,10 @@ pub use const_hex;
 #[macro_export]
 /// Calculate MD5 hash.
 ///
-/// Just a shortcut for `calc_hash!(MD5: ...)`.
+/// You may add `md-5 = "0.10"` to your `Cargo.toml`.
 ///
-/// See [`calc_hash`] for more details.
+/// Just a shortcut for `calc_hash!(MD5: ...)`, see [`calc_hash`] for more
+/// details.
 ///
 /// ```
 /// # use macro_toolset::md5;
@@ -27,9 +28,10 @@ macro_rules! md5 {
 #[macro_export]
 /// Calc SHA256 hash.
 ///
-/// Just a shortcut for `calc_hash!(SHA256: ...)`.
+/// You may add `sha2 = "0.10"` to your `Cargo.toml`.
 ///
-/// See [`calc_hash`] for more details.
+/// Just a shortcut for `calc_hash!(SHA256: ...)`, see [`calc_hash`] for more
+/// details.
 ///
 /// ```
 /// # use macro_toolset::sha256;
@@ -48,9 +50,10 @@ macro_rules! sha256 {
 #[macro_export]
 /// Calculate SHA384 hash.
 ///
-/// Just a shortcut for `calc_hash!(SHA384: ...)`.
+/// You may add `sha2 = "0.10"` to your `Cargo.toml`.
 ///
-/// See [`calc_hash`] for more details.
+/// Just a shortcut for `calc_hash!(SHA384: ...)`, see [`calc_hash`] for more
+/// details.
 ///
 /// ```
 /// # use macro_toolset::sha384;
@@ -69,9 +72,10 @@ macro_rules! sha384 {
 #[macro_export]
 /// Calculate SHA512 hash.
 ///
-/// Just a shortcut for `calc_hash!(SHA512: ...)`.
+/// You may add `sha2 = "0.10"` to your `Cargo.toml`.
 ///
-/// See [`calc_hash`] for more details.
+/// Just a shortcut for `calc_hash!(SHA512: ...)`, see [`calc_hash`] for more
+/// details.
 ///
 /// ```
 /// # use macro_toolset::sha512;
@@ -110,8 +114,8 @@ macro_rules! calc_hash_str {
 #[macro_export]
 /// Calculate Hash.
 ///
-/// Returns [`::const_hex::Buffer`], you may use [`::const_hex::Buffer::as_str`]
-/// to get the string.
+/// Returns [`const_hex::Buffer`], you may use [`const_hex::Buffer::as_str`]
+/// to get the string, or just use with [`str_concat`](crate::str_concat).
 ///
 /// # Examples
 ///
@@ -245,7 +249,7 @@ macro_rules! calc_hash {
         let result = $hasher.finalize();
 
         #[allow(unsafe_code)]
-        ::const_hex::Buffer::<$len, false>::new().const_format(unsafe { &*{ (result).as_ptr() as *const [u8; $len] } })
+        $crate::hash::const_hex::Buffer::<$len, false>::new().const_format(unsafe { &*{ (result).as_ptr() as *const [u8; $len] } })
     }};
 
     (INTERNAL $len:expr; UPPERCASE; $hasher: expr, $($input_str:expr),+) => {{
@@ -254,7 +258,7 @@ macro_rules! calc_hash {
         let result = $hasher.finalize();
 
         #[allow(unsafe_code)]
-        ::const_hex::Buffer::<$len, false>::new().const_format_upper(unsafe { &*{ (result).as_ptr() as *const [u8; $len] } })
+        $crate::hash::const_hex::Buffer::<$len, false>::new().const_format_upper(unsafe { &*{ (result).as_ptr() as *const [u8; $len] } })
     }};
 
     (INTERNAL $len:expr; ITER; $hasher: expr, $input_iter:expr) => {{
@@ -264,7 +268,7 @@ macro_rules! calc_hash {
 
         let result = $hasher.finalize();
         #[allow(unsafe_code)]
-        ::const_hex::Buffer::<$len, false>::new().const_format(unsafe { &*{ (result).as_ptr() as *const [u8; $len] } })
+        $crate::hash::const_hex::Buffer::<$len, false>::new().const_format(unsafe { &*{ (result).as_ptr() as *const [u8; $len] } })
     }};
 
     (INTERNAL $len:expr; UPPERCASE; ITER; $hasher: expr, $input_iter:expr) => {{
@@ -274,6 +278,6 @@ macro_rules! calc_hash {
 
         let result = $hasher.finalize();
         #[allow(unsafe_code)]
-        ::const_hex::Buffer::<$len, false>::new().const_format_upper(unsafe { &*{ (result).as_ptr() as *const [u8; $len] } })
+        $crate::hash::const_hex::Buffer::<$len, false>::new().const_format_upper(unsafe { &*{ (result).as_ptr() as *const [u8; $len] } })
     }};
 }

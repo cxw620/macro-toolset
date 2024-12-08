@@ -1,5 +1,7 @@
 //! Base64 related macros
 
+pub use base64::*;
+
 #[macro_export]
 /// Base64 encode
 ///
@@ -18,11 +20,11 @@
 /// ```
 macro_rules! b64_encode {
     ($data:expr) => {
-        $crate::b64_encode!($data, ::base64::engine::general_purpose::STANDARD)
+        $crate::b64_encode!($data, $crate::base64::engine::general_purpose::STANDARD)
     };
     ($data:expr, $padding:path) => {{
         let mut string_buf = String::with_capacity(256);
-        ::base64::Engine::encode_string(&$padding, $data, &mut string_buf);
+        $crate::base64::Engine::encode_string(&$padding, $data, &mut string_buf);
         string_buf
     }};
 }
@@ -45,7 +47,7 @@ macro_rules! b64_encode {
 /// ```
 macro_rules! b64_encode_bytes {
     ($data:expr) => {
-        b64_encode_bytes!($data, ::base64::engine::general_purpose::STANDARD)
+        b64_encode_bytes!($data, $crate::base64::engine::general_purpose::STANDARD)
     };
     ($data:expr, $padding:path) => {{
         let data = $data.as_ref();
@@ -57,7 +59,7 @@ macro_rules! b64_encode_bytes {
             bytes_buf.set_len(target_len)
         };
         let bytes_written =
-            ::base64::Engine::encode_slice(&$padding, $data, bytes_buf.as_mut()).unwrap_or(0);
+            $crate::base64::Engine::encode_slice(&$padding, $data, bytes_buf.as_mut()).unwrap_or(0);
         bytes_buf.truncate(bytes_written);
         bytes_buf.freeze()
     }};
@@ -82,9 +84,9 @@ macro_rules! b64_encode_bytes {
 /// ```
 macro_rules! b64_decode {
     ($data:expr) => {
-        b64_decode!($data, ::base64::engine::general_purpose::STANDARD)
+        b64_decode!($data, $crate::base64::engine::general_purpose::STANDARD)
     };
     ($data:expr, $padding:path) => {
-        ::base64::Engine::decode(&$padding, $data)
+        $crate::base64::Engine::decode(&$padding, $data)
     };
 }

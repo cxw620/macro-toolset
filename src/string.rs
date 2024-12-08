@@ -2,6 +2,7 @@
 
 #[cfg(feature = "macros-string-ext-base64")]
 mod base64;
+#[cfg(feature = "macros-string-ext-hex")]
 mod hex;
 mod number;
 mod slice_sep;
@@ -11,6 +12,7 @@ use std::{borrow::Cow, ops, rc::Rc, sync::Arc};
 #[cfg(feature = "macros-string-ext-base64")]
 // re-export
 pub use base64::{padding, Base64Str};
+#[cfg(feature = "macros-string-ext-hex")]
 // re-export
 pub use hex::HexStr;
 // re-export

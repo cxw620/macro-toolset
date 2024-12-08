@@ -13,6 +13,9 @@ license = "GPL-3.0-only"
 readme = "README.md"
 repository = "https://github.com/cxw620/macro-toolset"
 
+[package.metadata.docs.rs]
+features = ["dev"]
+
 [dependencies]
 # Dev
 base64 = { version = "0.22", optional = true }
@@ -27,7 +30,6 @@ foldhash = { version = "0.1", optional = true }
 axum = { version = "0.7", optional = true, default-features = false }
 
 [dev-dependencies]
-base64 = "0.22"
 bytes = "1.8"
 const-hex = "1.13"
 criterion = "0.5"
@@ -36,21 +38,22 @@ rand = "0.8"
 sha2 = "0.10"
 
 [features]
-default = ["full"]
+default = ["macros-random", "macros-string"]
 
-# Full features
-full = [
+# Dev all
+dev = [
     "macros-base64",
     "macros-hash",
     "macros-random-fast",
     "macros-string",
     "macros-string-ext-axum",
     "macros-string-ext-base64",
+    "macros-string-ext-hex",
     "macros-string-ext-ryu",
 ]
 
 # Base64 related
-macros-base64 = []
+macros-base64 = ["dep:base64"]
 
 # Hash related
 macros-hash = ["dep:const-hex"]
@@ -60,9 +63,10 @@ macros-random = []
 macros-random-fast = ["macros-random", "dep:foldhash"]
 
 # StringExt related
-macros-string = ["dep:const-hex"]
+macros-string = []
 macros-string-ext-axum = ["dep:axum", "dep:bytes"]
 macros-string-ext-base64 = ["dep:base64"]
+macros-string-ext-hex = ["dep:const-hex"]
 macros-string-ext-ryu = ["dep:ryu"]
 
 # === Benchmarks ===
