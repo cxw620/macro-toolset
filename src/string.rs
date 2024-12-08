@@ -315,6 +315,17 @@ impl ops::Deref for StringExt {
     }
 }
 
+#[cfg(feature = "macros-string-ext-axum")]
+impl axum::response::IntoResponse for StringExt {
+    #[inline]
+    fn into_response(mut self) -> axum::response::Response {
+        // Avoid an extra allocation if possible.
+        self.inner.truncate(self.inner.len());
+
+        axum::response::Response::new(bytes::Bytes::from(self.inner).into())
+    }
+}
+
 // === Core Impls ===
 
 /// Trait for pushing any value that can be converted into str to [`StringExt`]
