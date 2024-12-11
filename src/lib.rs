@@ -64,11 +64,18 @@ macro_rules! init_tracing_simple {
 ///
 /// ```rust
 /// # use macro_toolset::wrapper;
-/// wrapper!(pub MyString(pub String));
-/// // derive is OK!
-/// wrapper!(pub MyStringDerived(pub String), derive(Debug, Clone, PartialEq, Eq, Hash));
+/// wrapper!(pub MyString(String));
+/// # wrapper!(pub MyStringPub(pub String));
+/// # wrapper!(pub MyStringPubCrate(pub(crate) String));
+/// // Derive is OK!
+/// wrapper!(pub MyStringDerived(String), derive(Debug, Clone, PartialEq, Eq, Hash));
+/// # wrapper!(pub MyStringPubInnerDerived(pub String), derive(Debug, Clone, PartialEq, Eq, Hash));
+/// # wrapper!(pub MyStringPubCrateInnerDerived(pub(crate) String), derive(Debug, Clone, PartialEq, Eq, Hash));
 /// // Lifetime is supported too!
 /// wrapper!(pub MyStringLifetime<'a>(&'a str));
+/// # wrapper!(pub MyStringLifetimePubInner<'a>(pub &'a str));
+/// # wrapper!(pub MyStringLifetimePubCrateInner<'a>(pub(crate) &'a str));
+/// # wrapper!(pub MyStringLifetimePubDerived<'a>(pub &'a str), derive(Debug, Clone, PartialEq, Eq, Hash));
 /// ```
 macro_rules! wrapper {
     ($vis:vis $name:ident$(<$($lt:lifetime),+>)?($($tt:tt)+) $(, <$($plt_name:ident: $plt:lifetime),+>)? $(, derive($($derive:path),+))?) => {
