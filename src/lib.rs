@@ -64,51 +64,72 @@ macro_rules! init_tracing_simple {
 ///
 /// ```rust
 /// # use macro_toolset::wrapper;
-/// wrapper!(pub MyString => pub String);
+/// wrapper!(pub MyString(pub String));
 /// // derive is OK!
-/// wrapper!(pub MyStringDerived => pub String, derive(Debug, Clone, PartialEq, Eq, Hash));
+/// wrapper!(pub MyStringDerived(pub String), derive(Debug, Clone, PartialEq, Eq, Hash));
+/// // Lifetime is supported too!
+/// wrapper!(pub MyStringLifetime<'a>(&'a str));
 /// ```
 macro_rules! wrapper {
-    ($vis:vis $name:ident => $vis_inner:vis $inner:ty$(, derive($($derive:path),+))?) => {
+    ($vis:vis $name:ident$(<$($lt:lifetime),+>)?($($tt:tt)+) $(, <$($plt_name:ident: $plt:lifetime),+>)? $(, derive($($derive:path),+))?) => {
         $(#[derive($($derive),+)])?
-        #[doc = "Wrapper over "]
-        #[doc = concat!("[`", stringify!($inner), "`]")]
-        $vis struct $name($vis_inner $inner);
+        #[repr(transparent)]
+        #[doc = concat!("Wrapper over `", stringify!($($tt)+), "`")]
+        $vis struct $name<$($($lt),+)?> {
+            inner: wrapper!(INNER $($tt)+),
+            $($(
+                $plt_name: std::marker::PhantomData<&$plt ()>,
+            ),+)?
+        }
 
-        impl From<$inner> for $name {
+        impl<$($($lt),+)?> From<wrapper!(INNER $($tt)+)> for $name<$($($lt),+)?> {
             #[inline]
-            fn from(inner: $inner) -> Self {
-                Self(inner)
+            fn from(inner: wrapper!(INNER $($tt)+)) -> Self {
+                Self {
+                    inner,
+                    $($($plt_name: std::marker::PhantomData),+)?
+                }
             }
         }
 
-        impl std::ops::Deref for $name {
-            type Target = $inner;
+        impl<$($($lt),+)?> std::ops::Deref for $name<$($($lt),+)?> {
+            type Target = wrapper!(INNER $($tt)+);
 
             fn deref(&self) -> &Self::Target {
-                &self.0
+                &self.inner
             }
         }
 
-        impl std::ops::DerefMut for $name {
+        impl<$($($lt),+)?> std::ops::DerefMut for $name<$($($lt),+)?> {
             fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.0
+                &mut self.inner
             }
         }
 
-        impl AsRef<$inner> for $name {
-            fn as_ref(&self) -> &$inner {
-                &self.0
+        impl<$($($lt),+)?> AsRef<wrapper!(INNER $($tt)+)> for $name<$($($lt),+)?> {
+            fn as_ref(&self) -> &wrapper!(INNER $($tt)+) {
+                &self.inner
             }
         }
 
-        impl $name {
+        impl<$($($lt),+)?> $name<$($($lt),+)?> {
             #[inline]
-            #[doc = "Creates a new instance of"]
-            #[doc = concat!("[`", stringify!($name), "`]")]
-            $vis const fn new(inner: $inner) -> Self {
-                Self(inner)
+            #[doc = concat!("Creates a new instance of [`", stringify!($name), "`]")]
+            $vis const fn new(inner: wrapper!(INNER $($tt)+)) -> Self {
+                Self {
+                    inner,
+                    $($($plt_name: std::marker::PhantomData),+)?
+                }
             }
         }
+    };
+    (INNER $vis:vis $inner:ty) => {
+        $inner
+    };
+    (INNER $vis:vis &$($lt:lifetime)? $inner:ty) => {
+        &$($lt)? $inner
+    };
+    (INNER $vis:vis &mut $($lt:lifetime)? $inner:ty) => {
+        &mut $($lt)? $inner
     };
 }
