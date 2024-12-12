@@ -57,7 +57,7 @@ macro_rules! random_string {
     };
 }
 
-#[cfg(feature = "macros-string")]
+#[cfg(feature = "feat-string")]
 #[macro_export]
 /// Generate random string base on xor-shift algorithm.
 ///
@@ -89,7 +89,7 @@ macro_rules! random_string_fast {
 ///
 /// [xorshift*]: https://en.wikipedia.org/wiki/Xorshift#xorshift*
 pub fn fast_random() -> u64 {
-    #[cfg(not(feature = "macros-random-fast"))]
+    #[cfg(not(feature = "feat-random-fast"))]
     use std::hash::RandomState;
     use std::{
         cell::Cell,
@@ -97,7 +97,7 @@ pub fn fast_random() -> u64 {
         num::Wrapping,
     };
 
-    #[cfg(feature = "macros-random-fast")]
+    #[cfg(feature = "feat-random-fast")]
     use ::foldhash::fast::RandomState;
 
     thread_local! {

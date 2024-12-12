@@ -1,12 +1,12 @@
 //! Dev deps: some useful macros.
 
-#[cfg(feature = "macros-base64")]
+#[cfg(feature = "feat-base64")]
 pub mod base64;
-#[cfg(feature = "macros-hash")]
+#[cfg(feature = "feat-hash")]
 pub mod hash;
-#[cfg(feature = "macros-random")]
+#[cfg(feature = "feat-random")]
 pub mod random;
-#[cfg(feature = "macros-string")]
+#[cfg(feature = "feat-string")]
 pub mod string;
 
 #[macro_export]

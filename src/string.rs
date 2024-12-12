@@ -1,18 +1,18 @@
 //! useful [`StringExt`] utilities for [`crate::str_concat`] macros
 
-#[cfg(feature = "macros-string-ext-base64")]
+#[cfg(feature = "feat-string-ext-base64")]
 mod base64;
-#[cfg(feature = "macros-string-ext-hex")]
+#[cfg(feature = "feat-string-ext-hex")]
 mod hex;
 mod number;
 mod slice_sep;
 
 use std::{borrow::Cow, ops, rc::Rc, sync::Arc};
 
-#[cfg(feature = "macros-string-ext-base64")]
+#[cfg(feature = "feat-string-ext-base64")]
 // re-export
 pub use base64::{padding, Base64Str};
-#[cfg(feature = "macros-string-ext-hex")]
+#[cfg(feature = "feat-string-ext-hex")]
 // re-export
 pub use hex::HexStr;
 // re-export
@@ -317,7 +317,7 @@ impl ops::Deref for StringExt {
     }
 }
 
-#[cfg(feature = "macros-string-ext-axum")]
+#[cfg(feature = "feat-string-ext-axum")]
 impl axum::response::IntoResponse for StringExt {
     #[inline]
     fn into_response(mut self) -> axum::response::Response {

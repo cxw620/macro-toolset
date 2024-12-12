@@ -38,36 +38,36 @@ rand = "0.8"
 sha2 = "0.10"
 
 [features]
-default = ["macros-random", "macros-string"]
+default = ["feat-random", "feat-string"]
 
 # Dev all
 dev = [
-    "macros-base64",
-    "macros-hash",
-    "macros-random-fast",
-    "macros-string",
-    "macros-string-ext-axum",
-    "macros-string-ext-base64",
-    "macros-string-ext-hex",
-    "macros-string-ext-ryu",
+    "feat-base64",
+    "feat-hash",
+    "feat-random-fast",
+    "feat-string",
+    "feat-string-ext-axum",
+    "feat-string-ext-base64",
+    "feat-string-ext-hex",
+    "feat-string-ext-ryu",
 ]
 
 # Base64 related
-macros-base64 = ["dep:base64"]
+feat-base64 = ["dep:base64"]
 
 # Hash related
-macros-hash = ["dep:const-hex"]
+feat-hash = ["dep:const-hex"]
 
 # Random related
-macros-random = []
-macros-random-fast = ["macros-random", "dep:foldhash"]
+feat-random = []
+feat-random-fast = ["feat-random", "dep:foldhash"]
 
 # StringExt related
-macros-string = []
-macros-string-ext-axum = ["dep:axum", "dep:bytes"]
-macros-string-ext-base64 = ["dep:base64"]
-macros-string-ext-hex = ["dep:const-hex"]
-macros-string-ext-ryu = ["dep:ryu"]
+feat-string = []
+feat-string-ext-axum = ["dep:axum", "dep:bytes"]
+feat-string-ext-base64 = ["dep:base64"]
+feat-string-ext-hex = ["dep:const-hex"]
+feat-string-ext-ryu = ["dep:ryu"]
 
 # === Benchmarks ===
 [[bench]]

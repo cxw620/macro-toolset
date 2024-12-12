@@ -323,11 +323,11 @@ macro_rules! impl_num_str {
             impl StringExtT for $ty {
                 #[inline]
                 fn push_to_string(self, string: &mut Vec<u8>) {
-                    #[cfg(not(feature = "macros-string-ext-ryu"))]
+                    #[cfg(not(feature = "feat-string-ext-ryu"))]
                     {
                         string.extend(self.to_string().into_bytes())
                     }
-                    #[cfg(feature = "macros-string-ext-ryu")]
+                    #[cfg(feature = "feat-string-ext-ryu")]
                     {
                         string.extend(ryu::Buffer::new().format(self).as_bytes())
                     }
@@ -432,22 +432,22 @@ mod test {
         assert_eq!("-inf", f64::NEG_INFINITY.to_string_ext());
         assert_eq!("-1.0", (-1.0_f32).to_string_ext());
         assert_eq!("-1.0", (-1.0_f64).to_string_ext());
-        #[cfg(feature = "macros-string-ext-ryu")]
+        #[cfg(feature = "feat-string-ext-ryu")]
         assert_eq!(
             "-1.23e-40",
             (-0.000000000000000000000000000000000000000123_f32).to_string_ext()
         );
-        #[cfg(not(feature = "macros-string-ext-ryu"))]
+        #[cfg(not(feature = "feat-string-ext-ryu"))]
         assert_eq!(
             "-0.000000000000000000000000000000000000000123",
             (-0.000000000000000000000000000000000000000123_f32).to_string_ext()
         );
-        #[cfg(feature = "macros-string-ext-ryu")]
+        #[cfg(feature = "feat-string-ext-ryu")]
         assert_eq!(
             "-1.23e-40",
             (-0.000000000000000000000000000000000000000123_f64).to_string_ext()
         );
-        #[cfg(not(feature = "macros-string-ext-ryu"))]
+        #[cfg(not(feature = "feat-string-ext-ryu"))]
         assert_eq!(
             "-0.000000000000000000000000000000000000000123",
             (-0.000000000000000000000000000000000000000123_f64).to_string_ext()
