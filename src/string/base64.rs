@@ -50,7 +50,7 @@ macro_rules! enum_padding {
     };
 }
 
-pub mod padding {
+pub mod b64_padding {
     //! Base64 padding
 
     use super::{Base64Str, PhantomData, StringExtT};
@@ -60,14 +60,14 @@ pub mod padding {
 
 #[derive(Debug)]
 /// Base64 inner string
-pub struct Base64Str<'b, P = padding::STANDARD> {
+pub struct Base64Str<'b, P = b64_padding::STANDARD> {
     inner: &'b [u8],
     padding: PhantomData<P>,
 }
 
 #[cfg(test)]
 mod test {
-    use crate::string::{base64::padding::STANDARD, StringExtT};
+    use crate::string::{base64::b64_padding::STANDARD, StringExtT};
 
     #[test]
     fn test_base64() {

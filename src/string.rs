@@ -11,7 +11,7 @@ use std::{borrow::Cow, ops, rc::Rc, sync::Arc};
 
 #[cfg(feature = "feat-string-ext-base64")]
 // re-export
-pub use base64::{padding, Base64Str};
+pub use base64::{b64_padding, Base64Str};
 #[cfg(feature = "feat-string-ext-hex")]
 // re-export
 pub use hex::HexStr;
