@@ -27,7 +27,7 @@ The features listed in `Cargo.toml`:
   - `macros-string-ext-axum`: implement `IntoResponse` for StringExt.
   - `macros-string-ext-base64`: wrapper that indicates the inner slice should be encoded in base64 over `&[u8]`
   - `macros-string-ext-hex`: advanced hex encoding based on `const-hex`, with better performance than simple `NumStr`.
-  - `macros-string-ext-ryu`: fload number support.
+  - `macros-string-ext-ryu`: float number support.
 
 ## MSRV
 
