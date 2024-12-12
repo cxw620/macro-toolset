@@ -121,9 +121,9 @@ pub struct SliceSep<S, T: StringExtT> {
 impl<S: SeparatorT, T: StringExtT> SliceSep<S, T> {
     #[inline]
     /// Create a new slice, separated by a separator.
-    pub const fn new(slice: T, separator: S) -> Self {
+    pub const fn new(inner: T, separator: S) -> Self {
         Self {
-            inner: slice,
+            inner,
             separator,
         }
     }
