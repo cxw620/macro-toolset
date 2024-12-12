@@ -14,6 +14,7 @@ Some useful macros, to make the repetitive code less.
   - SHA256
   - SHA384
   - SHA512
+- Macro for creating a wrapper struct.
 - ...
 
 The features listed in `Cargo.toml`:
@@ -24,9 +25,9 @@ The features listed in `Cargo.toml`:
 - `feat-random`: Random number / string related utilities. You shall add `rand` to your `Cargo.toml`.
 - `feat-random-fast`: Random number / string related utilities. You shall add `rand` to your `Cargo.toml`.
 - `feat-string`: String related utilities.
-  - `feat-string-ext-axum`: implement `IntoResponse` for StringExt.
+  - `feat-string-ext-axum`: implement `IntoResponse` for `StringExt`.
   - `feat-string-ext-base64`: wrapper that indicates the inner slice should be encoded in base64 over `&[u8]`
-  - `feat-string-ext-hex`: advanced hex encoding based on `const-hex`, with better performance than simple `NumStr`.
+  - `feat-string-ext-hex`: hex encoding based on `const-hex`, with better performance than `NumStr`.
   - `feat-string-ext-ryu`: float number support.
 
 ## MSRV
