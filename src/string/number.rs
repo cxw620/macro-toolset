@@ -124,10 +124,42 @@ impl<T> NumStr<10, false, 0, 0, T> {
     /// ```rust
     /// # use macro_toolset::string::NumStr;
     /// # let num =
-    /// NumStr::new_default_hex(123_i16)
+    /// NumStr::hex_default(123_i16)
     /// # ;
     /// ```
-    pub fn new_default_hex(inner: T) -> NumStr<16, false, 0, 0, T> {
+    pub fn hex_default(inner: T) -> NumStr<16, false, 0, 0, T> {
+        NumStr(inner)
+    }
+}
+
+impl NumStr<10, false, 0, 0, u8> {
+    #[inline(always)]
+    /// # Create a new [`NumStr`] with the given number, mostly for encoding bytes to hex.
+    ///
+    /// With default settings of `B`, `U`, `R`, `M`:
+    ///
+    /// - `B`: `16`
+    /// - `U`: `false`
+    /// - `R`: `2`
+    /// - `M`: `0`
+    ///
+    /// See [`NumStr`] for details.
+    ///
+    /// ## Notice
+    ///
+    /// For negative number, `R`, `M` will not make sense
+    ///
+    /// ## Examples
+    ///
+    /// ```rust
+    /// # use macro_toolset::string::{NumStr, StringExtT};
+    /// let nums = vec![0x11, 0x45, 0x14, 0x19, 0x19, 0x81, 0x00]
+    ///     .into_iter()
+    ///     .map(NumStr::hex_byte_default);
+    ///
+    /// assert_eq!(nums.to_string_ext(), "11451419198100");
+    /// ```
+    pub fn hex_byte_default(inner: u8) -> NumStr<16, false, 2, 0, u8> {
         NumStr(inner)
     }
 }

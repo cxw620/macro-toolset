@@ -77,7 +77,7 @@ macro_rules! random_string {
 macro_rules! random_string_fast {
     ($b:expr, $l:expr) => {{
         use $crate::string::StringExtT;
-        $crate::string::NumStr::new_default_hex($crate::random::fast_random())
+        $crate::string::NumStr::hex_default($crate::random::fast_random())
             .set_uppercase::<$b>()
             .to_string_ext()
     }};

@@ -110,7 +110,7 @@ fn bench_hex_array(c: &mut Criterion) {
     group.bench_function("crate::string::NumStr", |b| {
         b.iter(|| {
             std::hint::black_box({
-                str_concat!(result.iter().map(|n| NumStr::new_default_hex(*n)))
+                str_concat!(result.iter().map(|n| NumStr::hex_byte_default(*n)))
             })
         });
     });
@@ -120,7 +120,7 @@ fn bench_hex_array(c: &mut Criterion) {
             std::hint::black_box({
                 str_concat!(result
                     .iter()
-                    .map(|n| NumStr::new_default_hex(*n).set_uppercase::<true>()))
+                    .map(|n| NumStr::hex_byte_default(*n).set_uppercase::<true>()))
             })
         });
     });

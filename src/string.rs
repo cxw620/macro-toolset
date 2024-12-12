@@ -33,7 +33,7 @@ pub use slice_sep::SliceSep;
 /// // General usage
 /// assert_eq!(
 ///     str_concat!(
-///         NumStr::new_default_hex(0xa_usize), // HexStr
+///         NumStr::hex_default(0xa_usize), // HexStr
 ///         "b", // &str
 ///         "c".to_string(), // String
 ///         1u8, // single number
@@ -840,8 +840,8 @@ mod tests {
         s.push(Box::new(-123456789i32));
 
         // HexStr
-        s.push(NumStr::new_default_hex(0xabcdefusize));
-        s.push(NumStr::new_default_hex(0xabcdefusize).set_uppercase::<true>());
+        s.push(NumStr::hex_default(0xabcdefusize));
+        s.push(NumStr::hex_default(0xabcdefusize).set_uppercase::<true>());
 
         assert_eq!(
             s.as_str(),

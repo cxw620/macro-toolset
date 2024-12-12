@@ -131,7 +131,7 @@ pub mod b64_padding {
                             .decode(self.inner.as_ref())
                             .unwrap_or_default()
                             .into_iter()
-                            .map(NumStr::new_default_hex)
+                            .map(NumStr::hex_byte_default)
                             .push_to_string(string);
                     }
                 }
@@ -223,11 +223,12 @@ mod test {
             "hello world"
         );
         assert_eq!(
-            b64_padding::STANDARD::decode_to_hex(b64_padding::STANDARD::encode(vec![
-                0x11, 0x45, 0x14, 0x19, 0x19, 0x81, 0x00
-            ]))
+            b64_padding::STANDARD::decode_to_hex(
+                b64_padding::STANDARD::encode(vec![0x11, 0x45, 0x14, 0x19, 0x19, 0x81, 0x00])
+                    .to_string_ext()
+            )
             .to_string_ext(),
-            "1145141919810"
+            "11451419198100"
         );
     }
 }
