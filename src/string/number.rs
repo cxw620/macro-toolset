@@ -393,7 +393,7 @@ macro_rules! impl_num_str {
 
                     #[allow(unsafe_code, reason = "must be valid utf8")]
                     match unsafe { str::from_utf8_unchecked(string) }.rfind('.') {
-                        Some(dot_pos) => {
+                        Some(dot_pos) if self.0.is_finite() => {
                             if U {
                                 string.truncate(dot_pos);
                             } else if R > 0 {
@@ -404,8 +404,11 @@ macro_rules! impl_num_str {
                                 // do nothing
                             }
                         },
-                        None if U => {
-                            // do nothing
+                        Some(_) => {
+                            // is NOT finite, do nothing
+                        },
+                        None if (U || !self.0.is_finite()) => {
+                            // is not finite, or integer only, do nothing
                         },
                         None => {
                             string.push(b'.');
