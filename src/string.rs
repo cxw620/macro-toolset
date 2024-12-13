@@ -407,6 +407,24 @@ pub trait StringExtT: Sized {
         string.push_with_separator(self, separator);
         string.into_string_remove_tail(separator)
     }
+
+    #[inline]
+    /// With prefix.
+    ///
+    /// This is different from simple tuple, since this will not add a separator
+    /// between the prefix and the value.
+    fn with_prefix<P: StringExtT>(self, prefix: P) -> SeplessTuple<(P, Self)> {
+        SeplessTuple((prefix, self))
+    }
+
+    #[inline]
+    /// With suffix.
+    ///
+    /// This is different from simple tuple, since this will not add a separator
+    /// between the suffix and the value.
+    fn with_suffix<S: StringExtT>(self, suffix: S) -> SeplessTuple<(Self, S)> {
+        SeplessTuple((self, suffix))
+    }
 }
 
 impl StringExtT for () {
@@ -663,6 +681,11 @@ where
     }
 }
 
+#[derive(Debug, Clone)]
+#[repr(transparent)]
+/// A tuple with no separator inserted between elements.
+pub struct SeplessTuple<T: StringExtT>(pub T);
+
 /// - Tuple of any type that implements [`StringExtT`]
 macro_rules! impl_for_tuple {
     ( $( $name:ident )+ ) => {
@@ -681,6 +704,16 @@ macro_rules! impl_for_tuple {
                 $(
                     $name.push_to_string_with_separator(string, separator);
                 )+
+            }
+        }
+
+        #[allow(non_snake_case)]
+        impl<$($name: StringExtT),+> StringExtT for SeplessTuple<($($name,)+)>
+        {
+            #[inline]
+            fn push_to_string(self, string: &mut Vec<u8>) {
+                let ($($name,)+) = self.0;
+                $($name.push_to_string(string);)+
             }
         }
     };
@@ -826,6 +859,25 @@ impl SeparatorT for &str {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_prefix_or_suffix() {
+        let exp1 = "world".with_prefix("hello");
+        assert_eq!(exp1.to_string_ext(), "helloworld");
+
+        let exp2 = str_concat!(sep = ' '; ("hello", "world"));
+        assert_eq!(exp2, "hello world");
+
+        let exp3 = str_concat!(
+            sep = ' ';
+            ("hello", "world"),
+            "world".with_prefix("prefix-"),
+            "2world".with_prefix("2prefix-"),
+            "hello".with_suffix(Some("-suffix")),
+            "3hello".with_suffix(None::<()>)
+        );
+        assert_eq!(exp3, "hello world prefix-world 2prefix-2world hello-suffix 3hello");
+    }
 
     #[test]
     fn test_string_ext() {
