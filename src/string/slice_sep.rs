@@ -122,10 +122,7 @@ impl<S: SeparatorT, T: StringExtT> SliceSep<S, T> {
     #[inline]
     /// Create a new slice, separated by a separator.
     pub const fn new(inner: T, separator: S) -> Self {
-        Self {
-            inner,
-            separator,
-        }
+        Self { inner, separator }
     }
 }
 

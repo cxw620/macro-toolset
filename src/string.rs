@@ -414,8 +414,8 @@ pub trait StringExtT: Sized {
     ///
     /// This is different from simple tuple, since this will not add a separator
     /// between the prefix and the value.
-    fn with_prefix<P: StringExtT>(self, prefix: P) -> SeplessTuple<(Option<P>, Self)> {
-        SeplessTuple((Some(prefix), self))
+    fn with_prefix<P: StringExtT>(self, prefix: P) -> impl StringExtT {
+        SeplessTuple((prefix, self))
     }
 
     #[inline]
@@ -423,8 +423,8 @@ pub trait StringExtT: Sized {
     ///
     /// This is different from simple tuple, since this will not add a separator
     /// between the suffix and the value.
-    fn with_suffix<S: StringExtT>(self, suffix: S) -> SeplessTuple<(Self, Option<S>)> {
-        SeplessTuple((self, Some(suffix)))
+    fn with_suffix<S: StringExtT>(self, suffix: S) -> impl StringExtT {
+        SeplessTuple((self, suffix))
     }
 }
 
@@ -667,21 +667,13 @@ where
     }
 
     #[inline]
-    fn with_prefix<P: StringExtT>(self, prefix: P) -> SeplessTuple<(Option<P>, Self)> {
-        if self.is_some() {
-            SeplessTuple((Some(prefix), self))
-        } else {
-            SeplessTuple((None, self))
-        }
+    fn with_prefix<P: StringExtT>(self, prefix: P) -> impl StringExtT {
+        self.map(|item| SeplessTuple((prefix, item)))
     }
 
     #[inline]
-    fn with_suffix<S: StringExtT>(self, suffix: S) -> SeplessTuple<(Self, Option<S>)> {
-        if self.is_some() {
-            SeplessTuple((self, Some(suffix)))
-        } else {
-            SeplessTuple((self, None))
-        }
+    fn with_suffix<S: StringExtT>(self, suffix: S) -> impl StringExtT {
+        self.map(|item| SeplessTuple((item, suffix)))
     }
 }
 
@@ -704,21 +696,13 @@ where
     }
 
     #[inline]
-    fn with_prefix<P: StringExtT>(self, prefix: P) -> SeplessTuple<(Option<P>, Self)> {
-        if self.is_ok() {
-            SeplessTuple((Some(prefix), self))
-        } else {
-            SeplessTuple((None, self))
-        }
+    fn with_prefix<P: StringExtT>(self, prefix: P) -> impl StringExtT {
+        self.map(|item| SeplessTuple((prefix, item)))
     }
 
     #[inline]
-    fn with_suffix<S: StringExtT>(self, suffix: S) -> SeplessTuple<(Self, Option<S>)> {
-        if self.is_ok() {
-            SeplessTuple((self, Some(suffix)))
-        } else {
-            SeplessTuple((self, None))
-        }
+    fn with_suffix<S: StringExtT>(self, suffix: S) -> impl StringExtT {
+        self.map(|item| SeplessTuple((item, suffix)))
     }
 }
 
@@ -937,7 +921,8 @@ mod tests {
             "world".with_prefix("prefix-"),
             "2world".with_prefix("2prefix-"),
             "hello".with_suffix(Some("-suffix")),
-            "3hello".with_suffix(None::<()>)
+            "3hello".with_suffix(None::<()>),
+            None::<()>.with_suffix("-suffix").with_prefix("prefix-")
         );
         assert_eq!(
             exp3,
