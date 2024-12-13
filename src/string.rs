@@ -391,6 +391,7 @@ pub trait StringExtT: Sized {
         separator.push_to_string(string);
     }
 
+    #[inline]
     /// Encode the value to the string.
     fn to_string_ext(self) -> String {
         let mut string = StringExt::with_capacity(128);
@@ -413,8 +414,8 @@ pub trait StringExtT: Sized {
     ///
     /// This is different from simple tuple, since this will not add a separator
     /// between the prefix and the value.
-    fn with_prefix<P: StringExtT>(self, prefix: P) -> SeplessTuple<(P, Self)> {
-        SeplessTuple((prefix, self))
+    fn with_prefix<P: StringExtT>(self, prefix: P) -> SeplessTuple<(Option<P>, Self)> {
+        SeplessTuple((Some(prefix), self))
     }
 
     #[inline]
@@ -422,8 +423,8 @@ pub trait StringExtT: Sized {
     ///
     /// This is different from simple tuple, since this will not add a separator
     /// between the suffix and the value.
-    fn with_suffix<S: StringExtT>(self, suffix: S) -> SeplessTuple<(Self, S)> {
-        SeplessTuple((self, suffix))
+    fn with_suffix<S: StringExtT>(self, suffix: S) -> SeplessTuple<(Self, Option<S>)> {
+        SeplessTuple((self, Some(suffix)))
     }
 }
 
@@ -660,6 +661,24 @@ where
             item.push_to_string_with_separator(string, separator);
         }
     }
+
+    #[inline]
+    fn with_prefix<P: StringExtT>(self, prefix: P) -> SeplessTuple<(Option<P>, Self)> {
+        if self.is_some() {
+            SeplessTuple((Some(prefix), self))
+        } else {
+            SeplessTuple((None, self))
+        }
+    }
+
+    #[inline]
+    fn with_suffix<S: StringExtT>(self, suffix: S) -> SeplessTuple<(Self, Option<S>)> {
+        if self.is_some() {
+            SeplessTuple((self, Some(suffix)))
+        } else {
+            SeplessTuple((self, None))
+        }
+    }
 }
 
 impl<T, E> StringExtT for Result<T, E>
@@ -677,6 +696,24 @@ where
     fn push_to_string_with_separator(self, string: &mut Vec<u8>, separator: impl SeparatorT) {
         if let Ok(item) = self {
             item.push_to_string_with_separator(string, separator);
+        }
+    }
+
+    #[inline]
+    fn with_prefix<P: StringExtT>(self, prefix: P) -> SeplessTuple<(Option<P>, Self)> {
+        if self.is_ok() {
+            SeplessTuple((Some(prefix), self))
+        } else {
+            SeplessTuple((None, self))
+        }
+    }
+
+    #[inline]
+    fn with_suffix<S: StringExtT>(self, suffix: S) -> SeplessTuple<(Self, Option<S>)> {
+        if self.is_ok() {
+            SeplessTuple((self, Some(suffix)))
+        } else {
+            SeplessTuple((self, None))
         }
     }
 }
@@ -876,7 +913,10 @@ mod tests {
             "hello".with_suffix(Some("-suffix")),
             "3hello".with_suffix(None::<()>)
         );
-        assert_eq!(exp3, "hello world prefix-world 2prefix-2world hello-suffix 3hello");
+        assert_eq!(
+            exp3,
+            "hello world prefix-world 2prefix-2world hello-suffix 3hello"
+        );
     }
 
     #[test]
