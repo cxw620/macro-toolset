@@ -482,7 +482,11 @@ macro_rules! impl_for_string {
         $(
             impl_for_string!(INTERNAL IMPL $ty);
             impl_for_string!(INTERNAL IMPL &$ty);
+            impl_for_string!(INTERNAL IMPL &mut $ty);
             impl_for_string!(INTERNAL IMPL &&$ty);
+            impl_for_string!(INTERNAL IMPL &&mut $ty);
+            impl_for_string!(INTERNAL IMPL &mut &$ty); // make no sense?
+            impl_for_string!(INTERNAL IMPL &mut &mut $ty);
         )*
     };
     (INTERNAL IMPL $ty:ty) => {
@@ -799,6 +803,28 @@ macro_rules! impl_ref_deref {
     ($($ty:ty),*) => {
         $(
             impl StringExtT for &$ty {
+                #[inline]
+                fn push_to_string(self, string: &mut Vec<u8>) {
+                    (*self).push_to_string(string);
+                }
+
+                #[inline]
+                fn push_to_string_with_separator(self, string: &mut Vec<u8>, separator: impl SeparatorT) {
+                    (*self).push_to_string_with_separator(string, separator);
+                }
+
+                #[inline]
+                fn to_string_ext(self) -> String {
+                    (*self).to_string_ext()
+                }
+
+                #[inline]
+                fn to_string_ext_with_sep(self, separator: impl SeparatorT) -> String {
+                    (*self).to_string_ext_with_sep(separator)
+                }
+            }
+
+            impl StringExtT for &mut $ty {
                 #[inline]
                 fn push_to_string(self, string: &mut Vec<u8>) {
                     (*self).push_to_string(string);
