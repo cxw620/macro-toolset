@@ -27,7 +27,7 @@ const-hex = { version = "1.13", optional = true, default-features = false }
 foldhash = { version = "0.1", optional = true }
 
 # Integration
-axum = { version = "0.7", optional = true, default-features = false }
+axum-core = { version = "0.4.5", optional = true }
 
 [dev-dependencies]
 bytes = "1.8"
@@ -64,7 +64,7 @@ feat-random-fast = ["feat-random", "dep:foldhash"]
 
 # StringExt related
 feat-string = []
-feat-string-ext-axum = ["dep:axum", "dep:bytes"]
+feat-string-ext-axum = ["dep:axum-core", "dep:bytes"]
 feat-string-ext-base64 = ["dep:base64"]
 feat-string-ext-hex = ["dep:const-hex"]
 feat-string-ext-ryu = ["dep:ryu"]

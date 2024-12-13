@@ -318,13 +318,13 @@ impl ops::Deref for StringExt {
 }
 
 #[cfg(feature = "feat-string-ext-axum")]
-impl axum::response::IntoResponse for StringExt {
+impl axum_core::response::IntoResponse for StringExt {
     #[inline]
-    fn into_response(mut self) -> axum::response::Response {
+    fn into_response(mut self) -> axum_core::response::Response {
         // Avoid an extra allocation if possible.
         self.inner.truncate(self.inner.len());
 
-        axum::response::Response::new(bytes::Bytes::from(self.inner).into())
+        axum_core::response::Response::new(bytes::Bytes::from(self.inner).into())
     }
 }
 
