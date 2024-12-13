@@ -365,6 +365,7 @@ impl axum_core::response::IntoResponse for StringExt {
 ///   - [`std::iter::Map`]
 /// - [`Box`] of any type that implements [`StringExtT`]
 /// - [`Option`] of any type that implements [`StringExtT`]
+/// - [`Result<T, E>`], `T` implements [`StringExtT`]
 /// - Tuple of any type that implements [`StringExtT`]
 /// - Any type that implements [`Copy`], just copy it.
 ///
@@ -638,6 +639,25 @@ where
     #[inline]
     fn push_to_string_with_separator(self, string: &mut Vec<u8>, separator: impl SeparatorT) {
         if let Some(item) = self {
+            item.push_to_string_with_separator(string, separator);
+        }
+    }
+}
+
+impl<T, E> StringExtT for Result<T, E>
+where
+    T: StringExtT,
+{
+    #[inline]
+    fn push_to_string(self, string: &mut Vec<u8>) {
+        if let Ok(item) = self {
+            item.push_to_string(string);
+        }
+    }
+
+    #[inline]
+    fn push_to_string_with_separator(self, string: &mut Vec<u8>, separator: impl SeparatorT) {
+        if let Ok(item) = self {
             item.push_to_string_with_separator(string, separator);
         }
     }
