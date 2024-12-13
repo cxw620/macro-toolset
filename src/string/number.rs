@@ -24,7 +24,9 @@ static HEX_CHARS_UPPER: [u8; 16] = [
 ///
 /// - `B`: the base of the number, should be within the range `2..=16`. Default
 ///   is 10.
-/// - `U`: whether to use uppercase for hex. Default is lowercase (false)
+/// - `U`: whether to use uppercase for hex. Default is lowercase (false).
+///
+///   For float number, `U` means whether only to reserve the integer part.
 /// - `R`: the resize length of the string. The overflow part will be truncated,
 ///   and the insufficient part will be filled with '0'. Default is 0, or no
 ///   resize.
@@ -240,6 +242,26 @@ impl<const B: u8, const U: bool, const R: usize, const M: usize, T> NumStr<B, U,
     }
 }
 
+impl<const B: u8, const U: bool, const R: usize, const M: usize> NumStr<B, U, R, M, f32> {
+    #[inline]
+    /// Set integer only mode.
+    ///
+    /// Default disable.
+    pub fn set_integer_only<const NU: bool>(self) -> NumStr<B, NU, R, M, f32> {
+        NumStr(self.0)
+    }
+}
+
+impl<const B: u8, const U: bool, const R: usize, const M: usize> NumStr<B, U, R, M, f64> {
+    #[inline]
+    /// Set integer only mode.
+    ///
+    /// Default disable.
+    pub fn set_integer_only<const NU: bool>(self) -> NumStr<B, NU, R, M, f64> {
+        NumStr(self.0)
+    }
+}
+
 macro_rules! impl_num_str {
     (UNSIGNED: $($ty:ty) +) => {
         $(
@@ -356,7 +378,11 @@ macro_rules! impl_num_str {
                 for NumStr<B, U, R, M, $ty>
             {
                 #[inline]
-                fn push_to_string(self, string: &mut Vec<u8>) {
+                fn push_to_string(mut self, string: &mut Vec<u8>) {
+                    if U {
+                        self.0 = self.0.trunc();
+                    }
+
                     let original_len = string.len();
 
                     #[cfg(not(feature = "feat-string-ext-ryu"))]
@@ -365,25 +391,30 @@ macro_rules! impl_num_str {
                     #[cfg(feature = "feat-string-ext-ryu")]
                     string.extend(ryu::Buffer::new().format(self.0).as_bytes());
 
-                    if R > 0 || M > 0 {
-                        #[allow(unsafe_code, reason = "must be valid utf8")]
-                        match unsafe { str::from_utf8_unchecked(string) }.rfind('.') {
-                            Some(dot_pos) => {
-                                if R > 0 {
-                                    string.resize(dot_pos + R + 1, b'0');
-                                } else if dot_pos - original_len < M {
-                                    string.resize(dot_pos + M + 1, b'0');
-                                } else {
-                                    // do nothing
-                                }
-                            },
-                            None => {
-                                string.push(b'.');
-                                if R > 0 {
-                                    string.resize(original_len + R + 1, b'0');
-                                } else {
-                                    string.resize(original_len + M + 1, b'0');
-                                }
+                    #[allow(unsafe_code, reason = "must be valid utf8")]
+                    match unsafe { str::from_utf8_unchecked(string) }.rfind('.') {
+                        Some(dot_pos) => {
+                            if U {
+                                string.truncate(dot_pos);
+                            } else if R > 0 {
+                                string.resize(dot_pos + R + 1, b'0');
+                            } else if dot_pos - original_len < M {
+                                string.resize(dot_pos + M + 1, b'0');
+                            } else {
+                                // do nothing
+                            }
+                        },
+                        None if U => {
+                            // do nothing
+                        },
+                        None => {
+                            string.push(b'.');
+                            if R > 0 {
+                                string.resize(original_len + R + 1, b'0');
+                            } else if M > 0{
+                                string.resize(original_len + M + 1, b'0');
+                            } else {
+                                string.push(b'0');
                             }
                         }
                     }
@@ -883,6 +914,7 @@ mod test {
             data.set_minimum_len::<1>().to_string_ext(),
             "123456789.87654321"
         );
+        assert_eq!(data.set_integer_only::<true>().to_string_ext(), "123456789");
     }
 
     #[test]
