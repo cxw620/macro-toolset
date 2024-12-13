@@ -1,6 +1,6 @@
 //! Number to string, fast and efficient utilities.
 
-use std::ops;
+use std::{ops, str};
 
 use super::StringExtT;
 
@@ -352,17 +352,48 @@ macro_rules! impl_num_str {
     };
     (FLOAT: $($ty:ty) +) => {
         $(
+            impl<const B: u8, const U: bool, const R: usize, const M: usize> StringExtT
+                for NumStr<B, U, R, M, $ty>
+            {
+                #[inline]
+                fn push_to_string(self, string: &mut Vec<u8>) {
+                    let original_len = string.len();
+
+                    #[cfg(not(feature = "feat-string-ext-ryu"))]
+                    string.extend(format!("{}", self.0).as_bytes());
+
+                    #[cfg(feature = "feat-string-ext-ryu")]
+                    string.extend(ryu::Buffer::new().format(self.0).as_bytes());
+
+                    if R > 0 || M > 0 {
+                        #[allow(unsafe_code, reason = "must be valid utf8")]
+                        match unsafe { str::from_utf8_unchecked(string) }.rfind('.') {
+                            Some(dot_pos) => {
+                                if R > 0 {
+                                    string.resize(dot_pos + R + 1, b'0');
+                                } else if dot_pos - original_len < M {
+                                    string.resize(dot_pos + M + 1, b'0');
+                                } else {
+                                    // do nothing
+                                }
+                            },
+                            None => {
+                                string.push(b'.');
+                                if R > 0 {
+                                    string.resize(original_len + R + 1, b'0');
+                                } else {
+                                    string.resize(original_len + M + 1, b'0');
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             impl StringExtT for $ty {
                 #[inline]
                 fn push_to_string(self, string: &mut Vec<u8>) {
-                    #[cfg(not(feature = "feat-string-ext-ryu"))]
-                    {
-                        string.extend(self.to_string().into_bytes())
-                    }
-                    #[cfg(feature = "feat-string-ext-ryu")]
-                    {
-                        string.extend(ryu::Buffer::new().format(self).as_bytes())
-                    }
+                    NumStr::new_default(self).push_to_string(string)
                 }
             }
         )*
@@ -821,6 +852,37 @@ mod test {
         assert_eq!(data.set_minimum_len::<9>().to_string_ext(), "123456789");
         assert_eq!(data.set_resize_len::<6>().to_string_ext(), "456789");
         assert_eq!(data.set_minimum_len::<6>().to_string_ext(), "123456789");
+
+        let data = NumStr::new_default(123456789.87654321_f64);
+        assert_eq!(
+            data.set_resize_len::<12>().to_string_ext(),
+            "123456789.876543210000"
+        );
+        assert_eq!(
+            data.set_minimum_len::<12>().to_string_ext(),
+            "123456789.876543210000"
+        );
+        assert_eq!(
+            data.set_resize_len::<8>().to_string_ext(),
+            "123456789.87654321"
+        );
+        assert_eq!(
+            data.set_minimum_len::<8>().to_string_ext(),
+            "123456789.87654321"
+        );
+        assert_eq!(
+            data.set_resize_len::<7>().to_string_ext(),
+            "123456789.8765432"
+        );
+        assert_eq!(
+            data.set_minimum_len::<7>().to_string_ext(),
+            "123456789.87654321"
+        );
+        assert_eq!(data.set_resize_len::<1>().to_string_ext(), "123456789.8");
+        assert_eq!(
+            data.set_minimum_len::<1>().to_string_ext(),
+            "123456789.87654321"
+        );
     }
 
     #[test]
