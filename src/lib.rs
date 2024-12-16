@@ -4,6 +4,7 @@
 pub mod base64;
 #[cfg(feature = "feat-hash")]
 pub mod hash;
+pub mod misc;
 #[cfg(feature = "feat-random")]
 pub mod random;
 #[cfg(feature = "feat-string")]
