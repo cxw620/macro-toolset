@@ -19,6 +19,9 @@
 ///     Don't forget to add `chrono` to your build dependencies.
 /// - In your crate, place `crate_version!(VERSION => pub VERSION)`,
 ///   `crate_version!(VERSION => pub VERSION)` where you like.
+///
+///   You can even do this: `crate_version!(VERSION => pub VERSION,
+/// env!("CARGO_PKG_NAME", "/"))`
 macro_rules! crate_version {
     (VERSION) => {{
         use std::{env, fs::File, io::Write, path::Path, process::Command};
@@ -58,6 +61,10 @@ macro_rules! crate_version {
     (VERSION => $vis:vis $name:ident) => {
         /// The git version.
         $vis static $name: &'static str = include_str!(concat!(env!("OUT_DIR"), "/VERSION"));
+    };
+    (VERSION => $vis:vis $name:ident, $($c:tt)*) => {
+        /// The git version.
+        $vis static $name: &'static str = concat!($($c)*, include_str!(concat!(env!("OUT_DIR"), "/VERSION")));
     };
     (BUILD_TIME => $vis:vis $name:ident) => {
         /// The git version.
