@@ -27,7 +27,7 @@ const-hex = { version = "1.13", optional = true, default-features = false }
 foldhash = { version = "0.1", optional = true }
 
 # Integration
-axum-core = { version = "0.4.5", optional = true }
+axum-core = { version = "0.4", optional = true }
 http = { version = "1", optional = true }
 
 [dev-dependencies]
