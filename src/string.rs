@@ -865,6 +865,69 @@ impl_ref_deref!(
 );
 impl_ref_deref!(T => Box<T>);
 
+// === impl for other types
+
+#[cfg(feature = "feat-string-ext-http")]
+impl StringExtT for http::HeaderName {
+    fn push_to_string(self, string: &mut Vec<u8>) {
+        string.extend(self.as_str().as_bytes());
+    }
+}
+
+#[cfg(feature = "feat-string-ext-http")]
+impl StringExtT for http::Method {
+    fn push_to_string(self, string: &mut Vec<u8>) {
+        string.extend(self.as_str().as_bytes());
+    }
+}
+
+#[cfg(feature = "feat-string-ext-http")]
+impl StringExtT for http::StatusCode {
+    fn push_to_string(self, string: &mut Vec<u8>) {
+        string.extend(self.as_str().as_bytes());
+    }
+}
+
+#[cfg(feature = "feat-string-ext-http")]
+impl StringExtT for http::Uri {
+    fn push_to_string(self, string: &mut Vec<u8>) {
+        if let Some(scheme) = self.scheme() {
+            string.extend(scheme.as_str().as_bytes());
+            string.extend(b"://");
+        }
+
+        if let Some(authority) = self.authority() {
+            string.extend(authority.as_str().as_bytes());
+        }
+
+        string.extend(self.path().as_bytes());
+
+        if let Some(query) = self.query() {
+            string.push(b'?');
+            string.extend(query.as_bytes());
+        }
+    }
+}
+
+#[cfg(feature = "feat-string-ext-http")]
+impl StringExtT for http::Version {
+    fn push_to_string(self, string: &mut Vec<u8>) {
+        let str_byte = match self {
+            http::Version::HTTP_09 => &b"HTTP/0.9"[..],
+            http::Version::HTTP_10 => &b"HTTP/1.0"[..],
+            http::Version::HTTP_11 => &b"HTTP/1.1"[..],
+            http::Version::HTTP_2 => &b"HTTP/2.0"[..],
+            http::Version::HTTP_3 => &b"HTTP/3.0"[..],
+            _ => {
+                string.extend(format!("{self:?}").as_bytes());
+                return;
+            }
+        };
+
+        string.extend(str_byte);
+    }
+}
+
 // === extend utilities ===
 
 #[allow(clippy::len_without_is_empty)]

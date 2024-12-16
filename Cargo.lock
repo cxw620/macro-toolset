@@ -461,6 +461,7 @@ dependencies = [
  "const-hex",
  "criterion",
  "foldhash",
+ "http",
  "md-5",
  "rand",
  "ryu",
