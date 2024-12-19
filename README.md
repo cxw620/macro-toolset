@@ -25,9 +25,11 @@ The features listed in `Cargo.toml`:
 - `feat-random`: Random number / string related utilities. You shall add `rand` to your `Cargo.toml`.
 - `feat-random-fast`: Random number / string related utilities. You shall add `rand` to your `Cargo.toml`.
 - `feat-string`: String related utilities.
+  - `feat-string-ext-ammonia`: Serializes an `ammonia::Document` instance without allocation.
   - `feat-string-ext-axum`: implement `IntoResponse` for `StringExt`.
   - `feat-string-ext-base64`: wrapper that indicates the inner slice should be encoded in base64 over `&[u8]`
   - `feat-string-ext-hex`: hex encoding based on `const-hex`, with better performance than `NumStr`.
+  - `feat-string-ext-http`: crate `http` integration.
   - `feat-string-ext-ryu`: float number support.
 
 ## MSRV
