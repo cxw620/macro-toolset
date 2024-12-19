@@ -867,6 +867,14 @@ impl_ref_deref!(T => Box<T>);
 
 // === impl for other types
 
+#[cfg(feature = "feat-string-ext-ammonia")]
+impl StringExtT for ammonia::Document {
+    fn push_to_string(self, string: &mut Vec<u8>) {
+        self.write_to(string)
+            .expect("Writing to a string should not fail (except on OOM)");
+    }
+}
+
 #[cfg(feature = "feat-string-ext-http")]
 impl StringExtT for http::HeaderName {
     fn push_to_string(self, string: &mut Vec<u8>) {

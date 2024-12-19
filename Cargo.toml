@@ -27,6 +27,7 @@ const-hex = { version = "1.13", optional = true, default-features = false }
 foldhash = { version = "0.1", optional = true }
 
 # Integration
+ammonia = { version = "4.0.0", optional = true }
 axum-core = { version = "0.4", optional = true }
 http = { version = "1", optional = true }
 
@@ -47,6 +48,7 @@ dev = [
     "feat-hash",
     "feat-random-fast",
     "feat-string",
+    "feat-string-ext-ammonia",
     "feat-string-ext-axum",
     "feat-string-ext-base64",
     "feat-string-ext-hex",
@@ -66,6 +68,7 @@ feat-random-fast = ["feat-random", "dep:foldhash"]
 
 # StringExt related
 feat-string = []
+feat-string-ext-ammonia = ["dep:ammonia"]
 feat-string-ext-axum = ["dep:axum-core", "dep:bytes"]
 feat-string-ext-base64 = ["dep:base64"]
 feat-string-ext-hex = ["dep:const-hex"]
