@@ -115,10 +115,42 @@ impl StringExt {
         }
     }
 
+    #[inline]
+    /// Create a new [`StringExt`] with given value that implements
+    /// [`StringExtT`].
+    ///
+    /// Most time you don't need to use this function but [`str_concat`] macro,
+    /// but sometime you may need the [`StringExt`] itself and this function is
+    /// what you need.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use macro_toolset::string::StringExt;
+    /// let example_string_ext = StringExt::from_value("Hello, world!");
+    /// let example_header_value: http::HeaderValue = example_string_ext.try_into().unwrap();
+    /// ```
+    pub fn from_value(value: impl StringExtT) -> Self {
+        let mut this = Self::with_capacity(64);
+        this.push(value);
+        this
+    }
+
+    #[inline]
+    /// Create a new [`StringExt`] with given value that implements
+    /// [`StringExtT`].
+    ///
+    /// See [`from_value`](Self::from_value) for more information.
+    pub fn from_value_with_separator(value: impl StringExtT, separator: impl SeparatorT) -> Self {
+        let mut this = Self::with_capacity(64);
+        this.push_with_separator(value, separator);
+        this
+    }
+
     #[allow(unsafe_code)]
     #[inline]
     #[must_use]
-    /// Converts a vector of bytes to a `String` without checking that the
+    /// Converts a vector of bytes to a String without checking that the
     /// string contains valid UTF-8.
     ///
     /// # Safety
@@ -146,7 +178,7 @@ impl StringExt {
 
     #[inline(always)]
     #[must_use]
-    /// Extracts a string slice containing the entire `StringExt`.
+    /// Extracts a string slice containing the entire [`StringExt`].
     pub fn as_str(&self) -> &str {
         #[allow(unsafe_code)]
         // Safety: the inner Vec<u8> is always valid utf-8
@@ -157,7 +189,7 @@ impl StringExt {
 
     #[inline(always)]
     #[must_use]
-    /// Converts a `StringExt` into a mutable string slice.
+    /// Converts a [`StringExt`] into a mutable string slice.
     pub fn as_mut_str(&mut self) -> &mut str {
         // Safety: the inner Vec<u8> is always valid utf-8
         #[allow(unsafe_code)]
@@ -183,7 +215,7 @@ impl StringExt {
         value.push_to_string_with_separator(&mut self.inner, separator);
     }
 
-    /// Returns this `StringExt`'s capacity, in bytes.
+    /// Returns this [`StringExt`]'s capacity, in bytes.
     #[inline]
     #[must_use]
     pub fn capacity(&self) -> usize {
@@ -212,7 +244,7 @@ impl StringExt {
     }
 
     #[inline(always)]
-    /// Returns a byte slice of this `StringExt`'s contents.
+    /// Returns a byte slice of this [`StringExt`]'s contents.
     pub fn as_bytes(&self) -> &[u8] {
         &self.inner
     }
@@ -226,7 +258,7 @@ impl StringExt {
 
     #[inline(always)]
     #[must_use]
-    /// Returns `true` if this `String` has a length of zero, and `false`
+    /// Returns true if this String has a length of zero, and false
     /// otherwise.
     pub fn is_empty(&self) -> bool {
         self.inner.is_empty()
@@ -325,6 +357,27 @@ impl axum_core::response::IntoResponse for StringExt {
         self.inner.truncate(self.inner.len());
 
         axum_core::response::Response::new(bytes::Bytes::from(self.inner).into())
+    }
+}
+
+#[cfg(feature = "feat-string-ext-http")]
+impl TryInto<http::HeaderName> for StringExt {
+    type Error = http::header::InvalidHeaderName;
+
+    fn try_into(self) -> Result<http::HeaderName, Self::Error> {
+        http::HeaderName::from_bytes(&self.inner)
+    }
+}
+
+#[cfg(feature = "feat-string-ext-http")]
+impl TryInto<http::HeaderValue> for StringExt {
+    type Error = http::header::InvalidHeaderValue;
+
+    fn try_into(mut self) -> Result<http::HeaderValue, Self::Error> {
+        // Avoid an extra allocation if possible.
+        self.inner.truncate(self.inner.len());
+
+        http::HeaderValue::from_maybe_shared(bytes::Bytes::from(self.inner))
     }
 }
 
