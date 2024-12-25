@@ -928,6 +928,16 @@ impl StringExtT for ammonia::Document {
     }
 }
 
+#[cfg(feature = "feat-string-ext-chrono")]
+impl<'a, I: Iterator<Item = B> + Clone, B: std::borrow::Borrow<chrono::format::Item<'a>>> StringExtT
+    for chrono::format::DelayedFormat<I>
+{
+    fn push_to_string(self, string: &mut Vec<u8>) {
+        // TODO: Avoid allocation here, though chrono doesn't provide a way to do so.
+        string.extend(self.to_string().as_bytes());
+    }
+}
+
 #[cfg(feature = "feat-string-ext-http")]
 impl StringExtT for http::HeaderName {
     fn push_to_string(self, string: &mut Vec<u8>) {

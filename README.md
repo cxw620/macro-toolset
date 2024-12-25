@@ -28,6 +28,7 @@ The features listed in `Cargo.toml`:
   - `feat-string-ext-ammonia`: Serializes an `ammonia::Document` instance without allocation.
   - `feat-string-ext-axum`: implement `IntoResponse` for `StringExt`.
   - `feat-string-ext-base64`: wrapper that indicates the inner slice should be encoded in base64 over `&[u8]`
+  - `feat-string-ext-chrono`: crate `chrono` integration.
   - `feat-string-ext-hex`: hex encoding based on `const-hex`, with better performance than `NumStr`.
   - `feat-string-ext-http`: crate `http` integration.
   - `feat-string-ext-ryu`: float number support.

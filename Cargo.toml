@@ -29,6 +29,7 @@ foldhash = { version = "0.1", optional = true }
 # Integration
 ammonia = { version = "4.0.0", optional = true }
 axum-core = { version = "0.4", optional = true }
+chrono = { version = "0.4.20", optional = true, default-features = false, features = ["alloc"] }
 http = { version = "1", optional = true }
 
 [dev-dependencies]
@@ -51,6 +52,7 @@ dev = [
     "feat-string-ext-ammonia",
     "feat-string-ext-axum",
     "feat-string-ext-base64",
+    "feat-string-ext-chrono",
     "feat-string-ext-hex",
     "feat-string-ext-http",
     "feat-string-ext-ryu",
@@ -71,6 +73,7 @@ feat-string = []
 feat-string-ext-ammonia = ["dep:ammonia"]
 feat-string-ext-axum = ["dep:axum-core", "dep:bytes"]
 feat-string-ext-base64 = ["dep:base64"]
+feat-string-ext-chrono = ["dep:chrono"]
 feat-string-ext-hex = ["dep:const-hex"]
 feat-string-ext-http = ["dep:bytes", "dep:http"]
 feat-string-ext-ryu = ["dep:ryu"]
