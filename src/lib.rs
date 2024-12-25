@@ -66,33 +66,29 @@ macro_rules! init_tracing_simple {
 /// ```rust
 /// # use macro_toolset::wrapper;
 /// wrapper!(pub MyString(String));
-/// # wrapper!(pub MyStringPub(pub String));
-/// # wrapper!(pub MyStringPubCrate(pub(crate) String));
 /// // Derive is OK!
 /// wrapper!(pub MyStringDerived(String), derive(Debug, Clone, PartialEq, Eq, Hash));
-/// # wrapper!(pub MyStringPubInnerDerived(pub String), derive(Debug, Clone, PartialEq, Eq, Hash));
-/// # wrapper!(pub MyStringPubCrateInnerDerived(pub(crate) String), derive(Debug, Clone, PartialEq, Eq, Hash));
 /// // Lifetime is supported too!
 /// wrapper!(pub MyStringLifetime<'a>(&'a str));
-/// # wrapper!(pub MyStringLifetimePubInner<'a>(pub &'a str));
-/// # wrapper!(pub MyStringLifetimePubCrateInner<'a>(pub(crate) &'a str));
-/// # wrapper!(pub MyStringLifetimePubDerived<'a>(pub &'a str), derive(Debug, Clone, PartialEq, Eq, Hash));
+/// wrapper!(pub MyStringLifetimePubDerived<'a>(pub &'a str), derive(Debug, Clone, PartialEq, Eq, Hash));
 /// ```
+///
+/// Reference: https://stackoverflow.com/a/61189128
 macro_rules! wrapper {
-    ($vis:vis $name:ident$(<$($lt:lifetime),+>)?($($tt:tt)+) $(, <$($plt_name:ident: $plt:lifetime),+>)? $(, derive($($derive:path),+))?) => {
+    ($vis:vis $name:ident$(<$($lt:tt$(:$clt:tt$(+$dlt:tt)*)?),+>)? ($inner_vis:vis $inner:ty) $(, <$($plt_name:ident: $plt:lifetime),+>)? $(, derive($($derive:path),+))?) => {
         $(#[derive($($derive),+)])?
         #[repr(transparent)]
-        #[doc = concat!("Wrapper over `", stringify!($($tt)+), "`")]
-        $vis struct $name<$($($lt),+)?> {
-            inner: wrapper!(INNER $($tt)+),
+        #[doc = concat!("Wrapper over `", stringify!($inner), "`")]
+        $vis struct $name$(<$($lt),+>)? {
+            $inner_vis inner: $inner,
             $($(
                 $plt_name: std::marker::PhantomData<&$plt ()>,
             ),+)?
         }
 
-        impl<$($($lt),+)?> From<wrapper!(INNER $($tt)+)> for $name<$($($lt),+)?> {
+        impl$(<$($lt),+>)? From<$inner> for $name$(<$($lt),+>)? {
             #[inline]
-            fn from(inner: wrapper!(INNER $($tt)+)) -> Self {
+            fn from(inner: $inner) -> Self {
                 Self {
                     inner,
                     $($($plt_name: std::marker::PhantomData),+)?
@@ -100,30 +96,30 @@ macro_rules! wrapper {
             }
         }
 
-        impl<$($($lt),+)?> std::ops::Deref for $name<$($($lt),+)?> {
-            type Target = wrapper!(INNER $($tt)+);
+        impl$(<$($lt),+>)? std::ops::Deref for $name$(<$($lt),+>)? {
+            type Target = $inner;
 
             fn deref(&self) -> &Self::Target {
                 &self.inner
             }
         }
 
-        impl<$($($lt),+)?> std::ops::DerefMut for $name<$($($lt),+)?> {
+        impl$(<$($lt),+>)? std::ops::DerefMut for $name$(<$($lt),+>)? {
             fn deref_mut(&mut self) -> &mut Self::Target {
                 &mut self.inner
             }
         }
 
-        impl<$($($lt),+)?> AsRef<wrapper!(INNER $($tt)+)> for $name<$($($lt),+)?> {
-            fn as_ref(&self) -> &wrapper!(INNER $($tt)+) {
+        impl$(<$($lt),+>)? AsRef<$inner> for $name$(<$($lt),+>)? {
+            fn as_ref(&self) -> &$inner {
                 &self.inner
             }
         }
 
-        impl<$($($lt),+)?> $name<$($($lt),+)?> {
+        impl$(<$($lt),+>)? $name$(<$($lt),+>)? {
             #[inline]
             #[doc = concat!("Creates a new instance of [`", stringify!($name), "`]")]
-            $vis const fn new(inner: wrapper!(INNER $($tt)+)) -> Self {
+            $vis const fn new(inner: $inner) -> Self {
                 Self {
                     inner,
                     $($($plt_name: std::marker::PhantomData),+)?
@@ -131,13 +127,29 @@ macro_rules! wrapper {
             }
         }
     };
-    (INNER $vis:vis $inner:ty) => {
-        $inner
-    };
-    (INNER $vis:vis &$($lt:lifetime)? $inner:ty) => {
-        &$($lt)? $inner
-    };
-    (INNER $vis:vis &mut $($lt:lifetime)? $inner:ty) => {
-        &mut $($lt)? $inner
-    };
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(unused)]
+    #![allow(unreachable_pub)]
+
+    // Simple wrapper!
+    wrapper!(pub MyString(String));
+    wrapper!(pub MyStringPub(pub String));
+    wrapper!(pub MyStringPubCrate(pub(crate) String));
+    // Derive is OK!
+    wrapper!(pub MyStringDerived(String), derive(Debug, Clone, PartialEq, Eq, Hash));
+    wrapper!(pub MyStringPubInnerDerived(pub String), derive(Debug, Clone, PartialEq, Eq, Hash));
+    wrapper!(pub MyStringPubCrateInnerDerived(pub(crate) String), derive(Debug, Clone, PartialEq, Eq, Hash));
+    // Lifetime is supported too!
+    wrapper!(pub MyStringLifetime<'a>(&'a str));
+    wrapper!(pub MyStringLifetimePubInner<'a>(pub &'a str));
+    wrapper!(pub MyStringLifetimePubCrateInner<'a>(pub(crate) &'a str));
+    wrapper!(pub MyStringLifetimePubDerived<'a>(pub &'a str), derive(Debug, Clone, PartialEq, Eq, Hash));
+    wrapper!(pub MyStringLifetimePubMutDerived<'a>(pub &'a mut str), derive(Debug, PartialEq, Eq, Hash));
+    // Generic is supported too!
+    wrapper!(pub MyStringLifetimePubT<T>(pub T), derive(Debug, Clone));
+    // Complicated!
+    wrapper!(pub MyStringLifetimePubRefT<'a, T>(pub &'a T), derive(Debug, Clone));
 }
