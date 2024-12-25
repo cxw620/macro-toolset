@@ -80,8 +80,8 @@ feat-string-ext-ryu = ["dep:ryu"]
 
 # === Benchmarks ===
 [[bench]]
-name = "string"
-path = "benches/string.rs"
+name = "hex_string"
+path = "benches/hex_string.rs"
 harness = false
 
 # === Lints config ===
