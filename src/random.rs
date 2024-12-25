@@ -61,7 +61,7 @@ macro_rules! random_string {
 #[macro_export]
 /// Generate random string base on xor-shift algorithm.
 ///
-/// Notice: Length of string should be always <= 32 (u64)
+/// Notice: Length of string should be always <= 16 (u64)
 ///
 /// # Example
 ///
@@ -70,8 +70,8 @@ macro_rules! random_string {
 /// # use macro_toolset::random_string_fast;
 /// # use macro_toolset::string::StringExtT;
 ///
-/// let rs_lowercase = random_string_fast!(false, 32);
-/// let rs_uppercase = random_string_fast!(true, 32);
+/// let rs_lowercase = random_string_fast!(false, 16);
+/// let rs_uppercase = random_string_fast!(true, 16);
 /// # }
 /// ```
 macro_rules! random_string_fast {
