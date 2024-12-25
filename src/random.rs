@@ -5,12 +5,12 @@
 ///
 /// # Example
 ///
-/// Just add `rand = "0.8"` to your crate deps then try:
+/// Just add `rand = "0.8.5"` to your crate deps then try:
 ///
 /// ```rust
 /// # use macro_toolset::random_string;
 /// #
-/// // Use default charset `b"0123456789abcdef"`
+/// // Use default charset `b"0123456789abcdef"` **NOT RECOMMEND, use RandHexStr instead**
 /// let rs_1 = random_string!(32);
 /// # assert_eq!(rs_1.len(), 32);
 /// // Use custom charset
@@ -29,51 +29,41 @@
 /// ```
 macro_rules! random_string {
     (STR = $string:expr; $range:expr, $charset:expr) => {{
-        use ::rand::Rng;
+        use ::rand::{distributions::Slice, Rng};
 
-        let mut rng = ::rand::thread_rng();
-        (0..$range)
-            .for_each(|_| {
-                let idx = rng.gen_range(0..$charset.len());
-                $string.push($charset[idx] as char);
-            });
+        $string.extend(
+            ::rand::thread_rng()
+                .sample_iter(Slice::new($charset).unwrap())
+                .take($range)
+                .map(|&c| c as char)
+        );
     }};
     (STR = $string:expr; $range:expr) => {
         $crate::random_string!(STR = $string; $range, b"0123456789abcdef")
     };
     ($range:expr, $charset:expr) => {{
-        use ::rand::Rng;
+        use ::rand::{distributions::Slice, Rng};
 
-        let mut rng = ::rand::thread_rng();
-        (0..$range)
-            .map(|_| {
-                let idx = rng.gen_range(0..$charset.len());
-                $charset[idx] as char
-            })
-            .collect::<String>()
+        let mut string = String::with_capacity($range);
+        string.extend(
+            ::rand::thread_rng()
+                .sample_iter(Slice::new($charset).unwrap())
+                .take($range)
+                .map(|&c| c as char)
+        );
+        string
     }};
     ($range:expr) => {
         $crate::random_string!($range, b"0123456789abcdef")
     };
 }
 
+#[deprecated(since = "0.7.12", note = "Use `RandHexStr` instead")]
 #[cfg(feature = "feat-string")]
 #[macro_export]
 /// Generate random string base on xor-shift algorithm.
 ///
 /// Notice: Length of string should be always <= 16 (u64)
-///
-/// # Example
-///
-/// ```rust
-/// # fn main() {
-/// # use macro_toolset::random_string_fast;
-/// # use macro_toolset::string::StringExtT;
-///
-/// let rs_lowercase = random_string_fast!(false, 16);
-/// let rs_uppercase = random_string_fast!(true, 16);
-/// # }
-/// ```
 macro_rules! random_string_fast {
     ($b:expr, $l:expr) => {{
         use $crate::string::StringExtT;

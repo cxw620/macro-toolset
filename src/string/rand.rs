@@ -87,7 +87,6 @@ impl RandHexStr {
     /// # use macro_toolset::string::{RandHexStr, StringExtT};
     /// let rand_str = RandHexStr::new_default().to_string_ext();
     /// assert_eq!(rand_str.len(), 16);
-    /// # panic!("{rand_str}");
     /// ```
     pub const fn new_default() -> Self {
         Self
