@@ -5,6 +5,8 @@ mod base64;
 #[cfg(feature = "feat-string-ext-hex")]
 mod hex;
 mod number;
+#[cfg(feature = "feat-string-ext-rand")]
+mod rand;
 mod slice_sep;
 
 use std::{borrow::Cow, ops, rc::Rc, sync::Arc};
@@ -17,6 +19,8 @@ pub use base64::{b64_padding, Base64Str};
 pub use hex::HexStr;
 // re-export
 pub use number::NumStr;
+#[cfg(feature = "feat-string-ext-rand")]
+pub use rand::{RandHexStr, RandStr};
 // re-export
 pub use slice_sep::SliceSep;
 

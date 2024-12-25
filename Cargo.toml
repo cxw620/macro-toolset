@@ -20,6 +20,7 @@ features = ["dev"]
 # Dev
 base64 = { version = "0.22.0", optional = true }
 bytes = { version = "1.2.0", optional = true }
+rand = { version = "0.8.5", default-features = false, features = ["std", "std_rng"], optional = true }
 ryu = { version = "1.0.0", optional = true }
 
 # Encryption
@@ -55,6 +56,7 @@ dev = [
     "feat-string-ext-chrono",
     "feat-string-ext-hex",
     "feat-string-ext-http",
+    "feat-string-ext-rand",
     "feat-string-ext-ryu",
 ]
 
@@ -76,12 +78,29 @@ feat-string-ext-base64 = ["dep:base64"]
 feat-string-ext-chrono = ["dep:chrono"]
 feat-string-ext-hex = ["dep:const-hex"]
 feat-string-ext-http = ["dep:bytes", "dep:http"]
+feat-string-ext-rand = ["feat-random", "dep:rand"]
 feat-string-ext-ryu = ["dep:ryu"]
 
+# Unsafe related
+feat-unsafe = []
+
 # === Benchmarks ===
+[profile.bench]
+opt-level = 3
+lto = true
+codegen-units = 1
+incremental = false
+panic = "abort"
+strip = true
+
 [[bench]]
 name = "hex_string"
 path = "benches/hex_string.rs"
+harness = false
+
+[[bench]]
+name = "rand_string"
+path = "benches/rand_string.rs"
 harness = false
 
 # === Lints config ===
@@ -159,7 +178,7 @@ todo = "warn"
 # Checks for usage of unimplemented!.
 unimplemented = "warn"
 # Checks for usage of unreachable!.
-unreachable = "warn"
+# unreachable = "warn"
 # Checks for wildcard dependencies in the Cargo.toml.
 wildcard_dependencies = "deny"
 # Checks for wildcard imports use _::*
