@@ -187,7 +187,7 @@ pub trait StringT {
 ///
 /// This is an auto trait implemented for all `StringT` types that are `Sized`.
 pub trait StringExtT: StringT + Sized {
-    #[inline(always)]
+    #[inline]
     /// With prefix.
     fn with_prefix<P: StringT>(self, prefix: P) -> general::tuple::SeplessTuple<(P, Self)> {
         general::tuple::SeplessTuple {
@@ -195,7 +195,7 @@ pub trait StringExtT: StringT + Sized {
         }
     }
 
-    #[inline(always)]
+    #[inline]
     /// With suffix.
     fn with_suffix<S: StringT>(self, suffix: S) -> general::tuple::SeplessTuple<(Self, S)> {
         general::tuple::SeplessTuple {
@@ -236,24 +236,24 @@ macro_rules! impl_for_ref_copy {
     ($($ty:ty)*) => {
         $(
             impl StringT for &$ty {
-                #[inline(always)]
+                #[inline]
                 fn encode_to_buf(self, string: &mut Vec<u8>) {
                     (*self).encode_to_buf(string);
                 }
 
-                #[inline(always)]
+                #[inline]
                 fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
                     (*self).encode_to_buf_with_separator(string, separator);
                 }
 
-                #[inline(always)]
+                #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
                 /// Push the value to the string (the underlying `bytes::BytesMut`).
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (*self).encode_to_bytes_buf(string);
                 }
 
-                #[inline(always)]
+                #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
                 /// Push the value to the string (the underlying `bytes::BytesMut`) with a
                 /// separator.
@@ -265,24 +265,24 @@ macro_rules! impl_for_ref_copy {
             }
 
             impl StringT for &mut $ty {
-                #[inline(always)]
+                #[inline]
                 fn encode_to_buf(self, string: &mut Vec<u8>) {
                     (*self).encode_to_buf(string);
                 }
 
-                #[inline(always)]
+                #[inline]
                 fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
                     (*self).encode_to_buf_with_separator(string, separator);
                 }
 
-                #[inline(always)]
+                #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
                 /// Push the value to the string (the underlying `bytes::BytesMut`).
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (*self).encode_to_bytes_buf(string);
                 }
 
-                #[inline(always)]
+                #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
                 /// Push the value to the string (the underlying `bytes::BytesMut`) with a
                 /// separator.
@@ -294,24 +294,24 @@ macro_rules! impl_for_ref_copy {
             }
 
             impl StringT for &&$ty {
-                #[inline(always)]
+                #[inline]
                 fn encode_to_buf(self, string: &mut Vec<u8>) {
                     (**self).encode_to_buf(string);
                 }
 
-                #[inline(always)]
+                #[inline]
                 fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
                     (**self).encode_to_buf_with_separator(string, separator);
                 }
 
-                #[inline(always)]
+                #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
                 /// Push the value to the string (the underlying `bytes::BytesMut`).
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (**self).encode_to_bytes_buf(string);
                 }
 
-                #[inline(always)]
+                #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
                 /// Push the value to the string (the underlying `bytes::BytesMut`) with a
                 /// separator.
@@ -323,24 +323,24 @@ macro_rules! impl_for_ref_copy {
             }
 
             impl StringT for &mut &$ty {
-                #[inline(always)]
+                #[inline]
                 fn encode_to_buf(self, string: &mut Vec<u8>) {
                     (**self).encode_to_buf(string);
                 }
 
-                #[inline(always)]
+                #[inline]
                 fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
                     (**self).encode_to_buf_with_separator(string, separator);
                 }
 
-                #[inline(always)]
+                #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
                 /// Push the value to the string (the underlying `bytes::BytesMut`).
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (**self).encode_to_bytes_buf(string);
                 }
 
-                #[inline(always)]
+                #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
                 /// Push the value to the string (the underlying `bytes::BytesMut`) with a
                 /// separator.
@@ -352,24 +352,24 @@ macro_rules! impl_for_ref_copy {
             }
 
             impl StringT for &&mut $ty {
-                #[inline(always)]
+                #[inline]
                 fn encode_to_buf(self, string: &mut Vec<u8>) {
                     (**self).encode_to_buf(string);
                 }
 
-                #[inline(always)]
+                #[inline]
                 fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
                     (**self).encode_to_buf_with_separator(string, separator);
                 }
 
-                #[inline(always)]
+                #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
                 /// Push the value to the string (the underlying `bytes::BytesMut`).
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (**self).encode_to_bytes_buf(string);
                 }
 
-                #[inline(always)]
+                #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
                 /// Push the value to the string (the underlying `bytes::BytesMut`) with a
                 /// separator.
@@ -381,24 +381,24 @@ macro_rules! impl_for_ref_copy {
             }
 
             impl StringT for &&&$ty {
-                #[inline(always)]
+                #[inline]
                 fn encode_to_buf(self, string: &mut Vec<u8>) {
                     (***self).encode_to_buf(string);
                 }
 
-                #[inline(always)]
+                #[inline]
                 fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
                     (***self).encode_to_buf_with_separator(string, separator);
                 }
 
-                #[inline(always)]
+                #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
                 /// Push the value to the string (the underlying `bytes::BytesMut`).
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (***self).encode_to_bytes_buf(string);
                 }
 
-                #[inline(always)]
+                #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
                 /// Push the value to the string (the underlying `bytes::BytesMut`) with a
                 /// separator.

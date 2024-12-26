@@ -13,23 +13,23 @@ use crate::str_iter_wrapper;
 macro_rules! impl_for_array_or_slice_like {
     ($($tt:tt)*) => {
         $($tt)* {
-            #[inline(always)]
+            #[inline]
             fn encode_to_buf(self, string: &mut Vec<u8>) {
                 str_iter_wrapper!(self.into_iter()).encode_to_buf(string);
             }
 
-            #[inline(always)]
+            #[inline]
             fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
                 str_iter_wrapper!(self.into_iter()).encode_to_buf_with_separator(string, separator);
             }
 
-            #[inline(always)]
+            #[inline]
             #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                 str_iter_wrapper!(self.into_iter()).encode_to_bytes_buf(string);
             }
 
-            #[inline(always)]
+            #[inline]
             #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                 str_iter_wrapper!(self.into_iter()).encode_to_bytes_buf_with_separator(string, separator);

@@ -77,7 +77,7 @@ impl<const L: usize, const RP: usize, const LP: usize> StringExtT for RandHexStr
 }
 
 impl RandHexStr {
-    #[inline(always)]
+    #[inline]
     /// Create a new [`RandHexStr`] and generate simple random hex-like string
     /// with length 16 (default).
     ///
@@ -94,7 +94,7 @@ impl RandHexStr {
 }
 
 impl<const L: usize, const RP: usize, const LP: usize> RandHexStr<L, RP, LP> {
-    #[inline(always)]
+    #[inline]
     /// Create a new [`RandStr`] and generate random hex-like string with
     /// length setting by `L`, `RP`, `LP`.
     ///
@@ -109,7 +109,7 @@ impl<const L: usize, const RP: usize, const LP: usize> RandHexStr<L, RP, LP> {
         RandHexStr
     }
 
-    #[inline(always)]
+    #[inline]
     /// Set `L`.
     ///
     /// You may prefer [`RandHexStr::<L, RP, LP>::new`](Self::new).
@@ -117,7 +117,7 @@ impl<const L: usize, const RP: usize, const LP: usize> RandHexStr<L, RP, LP> {
         RandHexStr
     }
 
-    #[inline(always)]
+    #[inline]
     /// Set `RP`.
     ///
     /// You may prefer [`RandHexStr::<L, RP, LP>::new`](Self::new).
@@ -125,7 +125,7 @@ impl<const L: usize, const RP: usize, const LP: usize> RandHexStr<L, RP, LP> {
         RandHexStr
     }
 
-    #[inline(always)]
+    #[inline]
     /// Set `LP`.
     ///
     /// You may prefer [`RandHexStr::<L, RP, LP>::new`](Self::new).
@@ -164,7 +164,7 @@ impl<const L: usize> StringExtT for RandStr<'_, L> {
 }
 
 impl<'r> RandStr<'r> {
-    #[inline(always)]
+    #[inline]
     /// Create a new [`RandStr`] and generate random string with length
     /// setting by `L`.
     pub const fn with_charset_default(charset: &'r [u8]) -> Self {
@@ -173,14 +173,14 @@ impl<'r> RandStr<'r> {
 }
 
 impl<'r, const L: usize> RandStr<'r, L> {
-    #[inline(always)]
+    #[inline]
     /// Create a new [`RandStr`] and generate random string with length
     /// setting by `L`.
     pub const fn with_charset(charset: &'r [u8]) -> Self {
         Self(charset)
     }
 
-    #[inline(always)]
+    #[inline]
     /// Set `L`.
     pub const fn with_l<const NL: usize>(self) -> RandStr<'r, NL> {
         RandStr(self.0)

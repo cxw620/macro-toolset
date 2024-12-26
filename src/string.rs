@@ -180,7 +180,7 @@ impl StringExt {
         self.inner
     }
 
-    #[inline(always)]
+    #[inline]
     #[must_use]
     /// Extracts a string slice containing the entire [`StringExt`].
     pub fn as_str(&self) -> &str {
@@ -191,7 +191,7 @@ impl StringExt {
         }
     }
 
-    #[inline(always)]
+    #[inline]
     #[must_use]
     /// Converts a [`StringExt`] into a mutable string slice.
     pub fn as_mut_str(&mut self) -> &mut str {
@@ -202,13 +202,13 @@ impl StringExt {
         }
     }
 
-    #[inline(always)]
+    #[inline]
     /// Push a value to the string, which implements [`StringExtT`].
     pub fn push(&mut self, value: impl StringExtT) {
         value.push_to_string(&mut self.inner);
     }
 
-    #[inline(always)]
+    #[inline]
     /// Push a value to the string ends with given separator, which both
     /// implement [`StringExtT`]
     ///
@@ -247,20 +247,20 @@ impl StringExt {
         self.inner.reserve_exact(additional);
     }
 
-    #[inline(always)]
+    #[inline]
     /// Returns a byte slice of this [`StringExt`]'s contents.
     pub fn as_bytes(&self) -> &[u8] {
         &self.inner
     }
 
-    #[inline(always)]
+    #[inline]
     #[must_use]
     /// Get the length of the string
     pub fn len(&self) -> usize {
         self.inner.len()
     }
 
-    #[inline(always)]
+    #[inline]
     #[must_use]
     /// Returns true if this String has a length of zero, and false
     /// otherwise.
@@ -269,7 +269,7 @@ impl StringExt {
     }
 
     #[allow(unsafe_code)]
-    #[inline(always)]
+    #[inline]
     /// Borrow the inner Vec<u8>
     ///
     /// # Safety
@@ -281,7 +281,7 @@ impl StringExt {
         &mut self.inner
     }
 
-    #[inline(always)]
+    #[inline]
     /// Consume self and get the final String.
     pub fn into_string(self) -> String {
         // Safety: the inner Vec<u8> is always valid utf-8

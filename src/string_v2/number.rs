@@ -76,7 +76,7 @@ impl<const B: u8, const U: bool, const R: usize, const M: usize, T> ops::DerefMu
 }
 
 impl<T> NumStr<10, false, 0, 0, T> {
-    #[inline(always)]
+    #[inline]
     /// # Create a new [`NumStr`] with the given number.
     ///
     /// With default settings of `B`, `U`, `R`, `M`:
@@ -106,7 +106,7 @@ impl<T> NumStr<10, false, 0, 0, T> {
         NumStr(inner)
     }
 
-    #[inline(always)]
+    #[inline]
     /// # Create a new [`NumStr`] with the given number.
     ///
     /// With default settings of `B`, `U`, `R`, `M`:
@@ -136,7 +136,7 @@ impl<T> NumStr<10, false, 0, 0, T> {
 }
 
 impl NumStr<10, false, 0, 0, u8> {
-    #[inline(always)]
+    #[inline]
     /// # Create a new [`NumStr`] with the given number, mostly for encoding bytes to hex.
     ///
     /// With default settings of `B`, `U`, `R`, `M`:
@@ -174,13 +174,13 @@ impl<const B: u8, const U: bool, const R: usize, const M: usize, T> NumStr<B, U,
         NumStr(inner)
     }
 
-    #[inline(always)]
+    #[inline]
     /// Convert to decimal representation.
     pub fn decimal(self) -> NumStr<10, U, R, M, T> {
         NumStr(self.0)
     }
 
-    #[inline(always)]
+    #[inline]
     /// Convert to hexadecimal representation.
     pub fn hexadecimal(self) -> NumStr<16, U, R, M, T> {
         NumStr(self.0)
@@ -231,7 +231,7 @@ impl<const B: u8, const U: bool, const R: usize, const M: usize, T> NumStr<B, U,
         NumStr(self.0)
     }
 
-    #[inline(always)]
+    #[inline]
     fn charset() -> &'static [u8] {
         debug_assert!(B >= 2 && B <= 16, "unsupported base: {}", B);
 
@@ -520,23 +520,23 @@ macro_rules! impl_num_str {
     (@INTERNAL $ty:ty) => {
         impl<const B: u8, const U: bool, const R: usize, const M: usize> StringT for NumStr<B, U, R, M, $ty>
         {
-            #[inline(always)]
+            #[inline]
             fn encode_to_buf(self, string: &mut Vec<u8>) {
                 self.encode(string)
             }
 
-            #[inline(always)]
+            #[inline]
             fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, _separator: &str) {
                 self.encode(string)
             }
 
-            #[inline(always)]
+            #[inline]
             #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                 self.encode_bytes(string)
             }
 
-            #[inline(always)]
+            #[inline]
             #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, _separator: &str) {
                 self.encode_bytes(string)
@@ -544,23 +544,23 @@ macro_rules! impl_num_str {
         }
 
         impl StringT for $ty {
-            #[inline(always)]
+            #[inline]
             fn encode_to_buf(self, string: &mut Vec<u8>) {
                 NumStr::new_default(self).encode_to_buf(string)
             }
 
-            #[inline(always)]
+            #[inline]
             fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
                 NumStr::new_default(self).encode_to_buf_with_separator(string, separator)
             }
 
-            #[inline(always)]
+            #[inline]
             #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                 NumStr::new_default(self).encode_to_bytes_buf(string)
             }
 
-            #[inline(always)]
+            #[inline]
             #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                 NumStr::new_default(self).encode_to_bytes_buf_with_separator(string, separator)

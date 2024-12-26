@@ -7,14 +7,16 @@ macro_rules! impl_for_extern_type {
             #[inline]
             fn encode_to_buf($self: Self, $arg: &mut Vec<u8>) $block
 
-            #[inline(always)]
+            #[inline]
             fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, _separator: &str) {
                 self.encode_to_buf(string);
             }
 
+            #[inline]
+            #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf($self: Self, $arg: &mut bytes::BytesMut) $block
 
-            #[inline(always)]
+            #[inline]
             #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, _separator: &str) {
                 self.encode_to_bytes_buf(string);
@@ -31,7 +33,7 @@ impl super::StringT for ammonia::Document {
             .expect("Writing to a string should not fail (except on OOM)");
     }
 
-    #[inline(always)]
+    #[inline]
     fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, _separator: &str) {
         self.encode_to_buf(string);
     }
@@ -45,7 +47,7 @@ impl super::StringT for ammonia::Document {
             .expect("Writing to a string should not fail (except on OOM)");
     }
 
-    #[inline(always)]
+    #[inline]
     #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, _separator: &str) {
         self.encode_to_bytes_buf(string);
@@ -62,7 +64,7 @@ impl<'a, I: Iterator<Item = B> + Clone, B: std::borrow::Borrow<chrono::format::I
         string.extend(self.to_string().as_bytes());
     }
 
-    #[inline(always)]
+    #[inline]
     fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, _separator: &str) {
         self.encode_to_buf(string);
     }
@@ -74,7 +76,7 @@ impl<'a, I: Iterator<Item = B> + Clone, B: std::borrow::Borrow<chrono::format::I
         string.extend(self.to_string().as_bytes());
     }
 
-    #[inline(always)]
+    #[inline]
     #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, _separator: &str) {
         self.encode_to_bytes_buf(string);

@@ -61,7 +61,7 @@ macro_rules! impl_for_tuple {
                 $($name.encode_to_buf(string);)+
             }
 
-            #[inline(always)]
+            #[inline]
             fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, _separator: &str) {
                 self.encode_to_buf(string);
             }
@@ -73,7 +73,7 @@ macro_rules! impl_for_tuple {
                 $($name.encode_to_bytes_buf(string);)+
             }
 
-            #[inline(always)]
+            #[inline]
             #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, _separator: &str) {
                 self.encode_to_bytes_buf(string);
