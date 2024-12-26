@@ -1,6 +1,6 @@
 [package]
 name = "macro-toolset"
-version = "0.8.0-alpha.1"
+version = "0.8.0-alpha.2"
 edition = "2021"
 rust-version = "1.66.0"
 

@@ -7,6 +7,84 @@ pub mod number;
 // Re-export the `NumStr` type for convenience.
 pub use number::NumStr;
 
+#[macro_export]
+/// Fast concat [`String`] / &[`str`] / number.
+///
+/// For details of params accepted, please refers to [`StringExtT`].
+///
+/// # Examples
+///
+/// ```rust
+/// # use macro_toolset::{str_concat_v2, string_v2::NumStr};
+/// # fn main() {
+/// // General usage
+/// assert_eq!(
+///     str_concat_v2!(
+///         NumStr::hex_default(0xa_usize), // HexStr
+///         "b", // &str
+///         "c".to_string(), // String
+///         1u8, // single number
+///         '😀', // char
+///         '�' // char
+///     ), "abc1😀�"
+/// );
+/// // with initial string
+/// let mut str_initial = "abc".to_string();
+/// str_concat_v2!(str = str_initial; "1", "😀", "�");
+/// assert_eq!(
+///    str_initial, "abc1😀�"
+/// );
+///
+/// // with capacity
+/// assert_eq!(
+///    str_concat_v2!(cap = 10; "abc", "1", "😀", "�"), "abc1😀�"
+/// );
+///
+/// // with separator
+/// assert_eq!(
+///   str_concat_v2!(sep = ","; "abc", "1", "😀", "�"), "abc,1,😀,�"
+/// );
+/// # }
+/// ```
+macro_rules! str_concat_v2 {
+    ($($x:expr),*) => {
+        {
+            use $crate::string_v2::StringExtT;
+
+            ($($x,)*).to_string_ext()
+        }
+    };
+    (str = $string_initial:expr; $($x:expr),*) => {
+        {
+            use $crate::string_v2::PushAnyT;
+
+            $(
+                $string_initial.push_any($x);
+            )*
+        }
+    };
+    (cap = $cap:expr; $($x:expr),*) => {
+        {
+            use $crate::string_v2::PushAnyT;
+
+            let mut string_final = String::with_capacity($cap);
+
+            $(
+                string_final.push_any($x);
+            )*
+
+            string_final
+        }
+    };
+    (sep = $sep:expr; $($x:expr),*) => {
+        {
+            use $crate::string_v2::StringExtT;
+
+            ($($x,)*).to_string_ext_with_separator($sep)
+        }
+    };
+}
+
 /// Trait helper for push any string-like type to the string.
 pub trait PushAnyT {
     /// Push any string-like type to the string.
@@ -138,7 +216,7 @@ pub trait StringExtT: StringT + Sized {
     /// Encode the value(s) to the string with separator.
     ///
     /// For single-element values, this is the same as `to_string_ext`.
-    fn to_string_with_separator(self, separator: &str) -> String {
+    fn to_string_ext_with_separator(self, separator: &str) -> String {
         let mut string_buf = String::with_capacity(64);
 
         #[allow(unsafe_code, reason = "safe because of the `StringT` trait")]
@@ -382,7 +460,7 @@ mod tests {
                 "d".with_prefix("prefix-"),
                 "e".with_suffix("-suffix"),
                 "f".with_prefix("2prefix-").with_suffix("-suffix2"),
-                1u8
+                1u8,
             ),
             ",",
         );
