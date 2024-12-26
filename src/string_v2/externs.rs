@@ -1,11 +1,9 @@
 //! Implementations of extern crate types
 
-use super::StringT;
-
 macro_rules! impl_for_extern_type {
     ($(#[$outer:meta])* $type:ty: $self:ident, $arg:ident => $block:block) => {
         $(#[$outer])*
-        impl StringT for $type {
+        impl super::StringT for $type {
             #[inline]
             fn encode_to_buf($self: Self, $arg: &mut Vec<u8>) $block
 
@@ -26,7 +24,7 @@ macro_rules! impl_for_extern_type {
 }
 
 #[cfg(feature = "feat-string-ext-ammonia")]
-impl StringT for ammonia::Document {
+impl super::StringT for ammonia::Document {
     #[inline]
     fn encode_to_buf(self, string: &mut Vec<u8>) {
         self.write_to(string)
@@ -55,8 +53,8 @@ impl StringT for ammonia::Document {
 }
 
 #[cfg(feature = "feat-string-ext-chrono")]
-impl<'a, I: Iterator<Item = B> + Clone, B: std::borrow::Borrow<chrono::format::Item<'a>>> StringT
-    for chrono::format::DelayedFormat<I>
+impl<'a, I: Iterator<Item = B> + Clone, B: std::borrow::Borrow<chrono::format::Item<'a>>>
+    super::StringT for chrono::format::DelayedFormat<I>
 {
     #[inline]
     fn encode_to_buf(self, string: &mut Vec<u8>) {
