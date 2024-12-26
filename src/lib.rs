@@ -9,6 +9,7 @@ pub mod misc;
 pub mod random;
 #[cfg(feature = "feat-string")]
 pub mod string;
+pub mod string_v2;
 
 #[macro_export]
 /// Faster way to get current timestamp other than
@@ -73,13 +74,15 @@ macro_rules! init_tracing_simple {
 /// wrapper!(pub MyStringLifetimePubDerived<'a>(pub &'a str), derive(Debug, Clone, PartialEq, Eq, Hash));
 /// ```
 ///
-/// Reference: https://stackoverflow.com/a/61189128
+/// Reference: <https://stackoverflow.com/a/61189128>
 macro_rules! wrapper {
-    ($vis:vis $name:ident$(<$($lt:tt$(:$clt:tt$(+$dlt:tt)*)?),+>)? ($inner_vis:vis $inner:ty) $(, <$($plt_name:ident: $plt:lifetime),+>)? $(, derive($($derive:path),+))?) => {
+    ($(#[$outer:meta])* $vis:vis $name:ident$(<$($lt:tt$(:$clt:tt$(+$dlt:tt)*)?),+>)? ($inner_vis:vis $inner:ty) $(, <$($plt_name:ident: $plt:lifetime),+>)? $(, derive($($derive:path),+))?) => {
+        $(#[$outer])*
         $(#[derive($($derive),+)])?
         #[repr(transparent)]
-        #[doc = concat!("Wrapper over `", stringify!($inner), "`")]
+        #[doc = concat!("\n\nThis is an auto-generated wrapper over `", stringify!($inner), "`")]
         $vis struct $name$(<$($lt),+>)? {
+            /// Inner value
             $inner_vis inner: $inner,
             $($(
                 $plt_name: std::marker::PhantomData<&$plt ()>,
@@ -93,6 +96,12 @@ macro_rules! wrapper {
                     inner,
                     $($($plt_name: std::marker::PhantomData),+)?
                 }
+            }
+        }
+
+        impl$(<$($lt),+>)? std::borrow::Borrow<$inner> for $name$(<$($lt),+>)? {
+            fn borrow(&self) -> &$inner {
+                &self.inner
             }
         }
 
@@ -136,7 +145,8 @@ mod tests {
 
     // Simple wrapper!
     wrapper!(pub MyString(String));
-    wrapper!(pub MyStringPub(pub String));
+
+    wrapper!(#[derive(Debug)] pub MyStringPub(pub String));
     wrapper!(pub MyStringPubCrate(pub(crate) String));
     // Derive is OK!
     wrapper!(pub MyStringDerived(String), derive(Debug, Clone, PartialEq, Eq, Hash));
@@ -152,4 +162,10 @@ mod tests {
     wrapper!(pub MyStringLifetimePubT<T>(pub T), derive(Debug, Clone));
     // Complicated!
     wrapper!(pub MyStringLifetimePubRefT<'a, T>(pub &'a T), derive(Debug, Clone));
+}
+
+wrapper! {
+    #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+    /// MyStringDerived
+    pub MyStringDerived(String)
 }
