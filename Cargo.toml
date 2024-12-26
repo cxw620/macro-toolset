@@ -92,7 +92,6 @@ opt-level = 3
 lto = true
 codegen-units = 1
 incremental = false
-panic = "abort"
 strip = true
 
 [[bench]]
