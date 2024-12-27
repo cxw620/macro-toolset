@@ -2,11 +2,16 @@
 
 pub mod externs;
 pub mod general;
+#[cfg(feature = "feat-string-ext-hex")]
+pub mod hex;
 pub mod number;
 #[cfg(feature = "feat-string-ext-rand")]
 pub mod rand;
 
 // Re-export the `NumStr` type for convenience.
+#[cfg(feature = "feat-string-ext-hex")]
+// Re-export the `HexStr` type for convenience.
+pub use hex::HexStr;
 pub use number::NumStr;
 
 #[macro_export]
