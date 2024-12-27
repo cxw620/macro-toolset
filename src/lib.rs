@@ -7,8 +7,13 @@ pub mod hash;
 pub mod misc;
 #[cfg(feature = "feat-random")]
 pub mod random;
+#[deprecated(
+    since = "0.8.0-rc.1",
+    note = "Use `string_v2` instead, v1 will be removed in 0.9.0."
+)]
 #[cfg(feature = "feat-string")]
 pub mod string;
+#[cfg(feature = "feat-string")]
 pub mod string_v2;
 
 #[macro_export]

@@ -1,6 +1,6 @@
 [package]
 name = "macro-toolset"
-version = "0.8.0-alpha.7"
+version = "0.8.0-rc.1"
 edition = "2021"
 rust-version = "1.66.0"
 
@@ -99,6 +99,11 @@ harness = false
 [[bench]]
 name = "rand_string"
 path = "benches/rand_string.rs"
+harness = false
+
+[[bench]]
+name = "str_concat"
+path = "benches/str_concat.rs"
 harness = false
 
 # === Lints config ===

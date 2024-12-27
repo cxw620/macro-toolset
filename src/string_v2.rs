@@ -500,7 +500,15 @@ mod tests {
             "3hello".with_suffix(None::<()>).with_prefix(None::<()>),
             None::<()>.with_prefix("prefix-").with_suffix("-suffix")
         );
+
         assert_eq!(exp5, "hello world hello-suffix 3hello");
+
+        let exp6 = str_concat_v2!(
+            sep = "&";
+            [1, 2, 3].with_prefix("post_ids[]=")
+        );
+
+        assert_eq!(exp6, "post_ids[]=1&post_ids[]=2&post_ids[]=3")
     }
 
     #[test]

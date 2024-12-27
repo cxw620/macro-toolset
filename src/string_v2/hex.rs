@@ -148,7 +148,7 @@ impl<const N: usize, const P: bool> StringExtT for const_hex::Buffer<N, P> {}
 
 #[cfg(test)]
 mod test {
-    use crate::string::{HexStr, StringExtT};
+    use crate::string_v2::{HexStr, StringExtT};
 
     #[test]
     fn test() {
