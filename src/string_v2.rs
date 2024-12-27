@@ -3,6 +3,8 @@
 pub mod externs;
 pub mod general;
 pub mod number;
+#[cfg(feature = "feat-string-ext-rand")]
+pub mod rand;
 
 // Re-export the `NumStr` type for convenience.
 pub use number::NumStr;

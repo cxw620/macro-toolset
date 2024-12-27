@@ -1,6 +1,6 @@
 [package]
 name = "macro-toolset"
-version = "0.8.0-alpha.5"
+version = "0.8.0-alpha.6"
 edition = "2021"
 rust-version = "1.66.0"
 
@@ -82,9 +82,6 @@ feat-string-ext-hex = ["dep:const-hex"]
 feat-string-ext-http = ["dep:bytes", "dep:http"]
 feat-string-ext-rand = ["feat-random", "dep:rand"]
 feat-string-ext-ryu = ["dep:ryu"]
-
-# Unsafe related
-feat-unsafe = []
 
 # === Benchmarks ===
 [profile.bench]

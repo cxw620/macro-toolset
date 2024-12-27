@@ -27,8 +27,7 @@ use crate::random::fast_random;
 ///
 /// Notice: will check if params are valid when you push this into the
 /// [`StringExt`](super::StringExt), or panic in debug mode, work normally but
-/// slower in release mode (unless feature `feat-unsafe` is enabled and you will
-/// come across with UB).
+/// slower in release mode.
 pub struct RandHexStr<const L: usize = 16, const RP: usize = 1, const LP: usize = 0>;
 
 impl<const L: usize, const RP: usize, const LP: usize> StringExtT for RandHexStr<L, RP, LP> {
@@ -51,15 +50,6 @@ impl<const L: usize, const RP: usize, const LP: usize> StringExtT for RandHexStr
             }
             0 => {}
             _ => {
-                #[cfg(all(feature = "feat-unsafe", not(debug_assertions), not(test)))]
-                #[allow(
-                    unsafe_code,
-                    reason = "Caller should make sure L is 0..=16 when in release mode or UB"
-                )]
-                unsafe {
-                    core::hint::unreachable_unchecked()
-                }
-
                 #[cfg(any(debug_assertions, test))]
                 unreachable!("L should be 0..=16");
 

@@ -18,7 +18,7 @@
 
 use std::{borrow::Cow, rc::Rc, sync::Arc};
 
-use super::{StringT, StringExtT};
+use super::{StringExtT, StringT};
 use crate::impl_for_shared_ref;
 
 macro_rules! impl_for_string {

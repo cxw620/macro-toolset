@@ -1,7 +1,10 @@
 //! Random number / string generation utilities
 
 #[macro_export]
-/// Generate random string.
+/// Generate random `String`.
+///
+/// For [`PushAnyT::push_any`](crate::string_v2::PushAnyT::push_any),
+/// [`random_str`](crate::random_str) is recommended.
 ///
 /// # Example
 ///
@@ -18,17 +21,17 @@
 /// # assert_eq!(rs_2.len(), 32);
 /// // Provide your own string and the randon string will be appended to it
 /// # let mut your_own_string = "test".to_string();
-/// random_string!(STR = your_own_string; 32);
+/// random_string!(32 => your_own_string);
 /// # assert_eq!(&your_own_string[0..4], "test");
 /// # assert_eq!(your_own_string.len(), 36);
 /// // Of course, custom charset is supported
 /// # let mut your_own_string = "test".to_string();
-/// random_string!(STR = your_own_string; 32, b"0123456789abcdefABCDEF");
+/// random_string!(32, b"0123456789abcdefABCDEF" => your_own_string);
 /// # assert_eq!(&your_own_string[0..4], "test");
 /// # assert_eq!(your_own_string.len(), 36);
 /// ```
 macro_rules! random_string {
-    (STR = $string:expr; $range:expr, $charset:expr) => {{
+    ($range:expr, $charset:expr => $string:expr) => {{
         use ::rand::{distributions::Slice, Rng};
 
         $string.extend(
@@ -38,9 +41,6 @@ macro_rules! random_string {
                 .map(|&c| c as char)
         );
     }};
-    (STR = $string:expr; $range:expr) => {
-        $crate::random_string!(STR = $string; $range, b"0123456789abcdef")
-    };
     ($range:expr, $charset:expr) => {{
         use ::rand::{distributions::Slice, Rng};
 
@@ -53,6 +53,9 @@ macro_rules! random_string {
         );
         string
     }};
+    ($range:expr => $string:expr) => {
+        $crate::random_string!($range, b"0123456789abcdef" => $string)
+    };
     ($range:expr) => {
         $crate::random_string!($range, b"0123456789abcdef")
     };

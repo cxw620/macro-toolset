@@ -85,20 +85,16 @@ where
 {
     #[inline]
     fn with_prefix<P: StringExtT + Copy>(self, prefix: P) -> impl StringExtT {
-        self.inner
-            .into_iter()
-            .map(move |item| super::tuple::SeplessTuple {
-                inner: (prefix, item),
-            })
+        self.inner.map(move |item| super::tuple::SeplessTuple {
+            inner: (prefix, item),
+        })
     }
 
     #[inline]
     fn with_suffix<S: StringExtT + Copy>(self, suffix: S) -> impl StringExtT {
-        self.inner
-            .into_iter()
-            .map(move |item| super::tuple::SeplessTuple {
-                inner: (item, suffix),
-            })
+        self.inner.map(move |item| super::tuple::SeplessTuple {
+            inner: (item, suffix),
+        })
     }
 }
 
