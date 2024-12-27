@@ -163,7 +163,7 @@ impl RandHexStr {
     /// # Example
     ///
     /// ```rust
-    /// # use macro_toolset::string::{RandHexStr, StringT};
+    /// # use macro_toolset::string::{RandHexStr, StringExtT};
     /// let random_str = RandHexStr::new_default().to_string_ext();
     /// assert_eq!(random_str.len(), 16);
     /// ```
@@ -180,7 +180,7 @@ impl<const L: usize, const RP: usize, const LP: usize> RandHexStr<L, RP, LP> {
     /// # Example
     ///
     /// ```rust
-    /// # use macro_toolset::string::{RandHexStr, StringT};
+    /// # use macro_toolset::string::{RandHexStr, StringExtT};
     /// let random_str = RandHexStr::<16, 3, 8>::new().to_string_ext();
     /// assert_eq!(random_str.len(), 56);
     /// ```
