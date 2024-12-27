@@ -3,7 +3,7 @@
 use std::ops;
 
 use super::StringT;
-use crate::impl_for_ref_copy;
+use crate::impl_for_ref;
 
 /// Hexadecimal characters in lower case.
 static HEX_CHARS_LOWER: [u8; 16] = [
@@ -572,7 +572,7 @@ macro_rules! impl_num_str {
 impl_num_str!(UNSIGNED: u8 u16 u32 u64 u128 usize);
 impl_num_str!(SIGNED: i8 as u8; i16 as u16; i32 as u32; i64 as u64; i128 as u128; isize as usize);
 impl_num_str!(FLOAT: f32 f64);
-impl_for_ref_copy!(u8 u16 u32 u64 u128 usize i8 i16 i32 i64 i128 isize f32 f64);
+impl_for_ref!(COPIED: u8 u16 u32 u64 u128 usize i8 i16 i32 i64 i128 isize f32 f64);
 
 #[cfg(test)]
 #[allow(clippy::cognitive_complexity)]

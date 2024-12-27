@@ -19,7 +19,7 @@
 use std::{borrow::Cow, rc::Rc, sync::Arc};
 
 use super::StringT;
-use crate::impl_for_ref_copy;
+use crate::impl_for_ref;
 
 macro_rules! impl_for_string {
     ($($ty:ty),*) => {
@@ -103,4 +103,4 @@ impl StringT for char {
     }
 }
 
-impl_for_ref_copy!(char);
+impl_for_ref!(COPIED: char);

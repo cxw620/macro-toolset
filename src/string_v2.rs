@@ -232,8 +232,8 @@ impl<T: StringT + Sized> StringExtT for T {}
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! impl_for_ref_copy {
-    ($($ty:ty)*) => {
+macro_rules! impl_for_ref {
+    (COPIED: $($ty:ty)*) => {
         $(
             impl StringT for &$ty {
                 #[inline]
@@ -248,17 +248,12 @@ macro_rules! impl_for_ref_copy {
 
                 #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
-                /// Push the value to the string (the underlying `bytes::BytesMut`).
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (*self).encode_to_bytes_buf(string);
                 }
 
                 #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
-                /// Push the value to the string (the underlying `bytes::BytesMut`) with a
-                /// separator.
-                ///
-                /// Only affects the array-or-slice-like types.
                 fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                     (*self).encode_to_bytes_buf_with_separator(string, separator);
                 }
@@ -277,17 +272,12 @@ macro_rules! impl_for_ref_copy {
 
                 #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
-                /// Push the value to the string (the underlying `bytes::BytesMut`).
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (*self).encode_to_bytes_buf(string);
                 }
 
                 #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
-                /// Push the value to the string (the underlying `bytes::BytesMut`) with a
-                /// separator.
-                ///
-                /// Only affects the array-or-slice-like types.
                 fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                     (*self).encode_to_bytes_buf_with_separator(string, separator);
                 }
@@ -306,17 +296,12 @@ macro_rules! impl_for_ref_copy {
 
                 #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
-                /// Push the value to the string (the underlying `bytes::BytesMut`).
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (**self).encode_to_bytes_buf(string);
                 }
 
                 #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
-                /// Push the value to the string (the underlying `bytes::BytesMut`) with a
-                /// separator.
-                ///
-                /// Only affects the array-or-slice-like types.
                 fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                     (**self).encode_to_bytes_buf_with_separator(string, separator);
                 }
@@ -335,17 +320,12 @@ macro_rules! impl_for_ref_copy {
 
                 #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
-                /// Push the value to the string (the underlying `bytes::BytesMut`).
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (**self).encode_to_bytes_buf(string);
                 }
 
                 #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
-                /// Push the value to the string (the underlying `bytes::BytesMut`) with a
-                /// separator.
-                ///
-                /// Only affects the array-or-slice-like types.
                 fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                     (**self).encode_to_bytes_buf_with_separator(string, separator);
                 }
@@ -364,17 +344,12 @@ macro_rules! impl_for_ref_copy {
 
                 #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
-                /// Push the value to the string (the underlying `bytes::BytesMut`).
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (**self).encode_to_bytes_buf(string);
                 }
 
                 #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
-                /// Push the value to the string (the underlying `bytes::BytesMut`) with a
-                /// separator.
-                ///
-                /// Only affects the array-or-slice-like types.
                 fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                     (**self).encode_to_bytes_buf_with_separator(string, separator);
                 }
@@ -393,19 +368,44 @@ macro_rules! impl_for_ref_copy {
 
                 #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
-                /// Push the value to the string (the underlying `bytes::BytesMut`).
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (***self).encode_to_bytes_buf(string);
                 }
 
                 #[inline]
                 #[cfg(feature = "feat-string-ext-bytes")]
-                /// Push the value to the string (the underlying `bytes::BytesMut`) with a
-                /// separator.
-                ///
-                /// Only affects the array-or-slice-like types.
                 fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                     (***self).encode_to_bytes_buf_with_separator(string, separator);
+                }
+            }
+        )*
+    };
+    (REF: $($ge:ident => $ty:ty)*) => {
+        $(
+            impl<$ge> StringT for $ty 
+            where
+                for <'a> &'a $ge: StringT,
+            {
+                #[inline]
+                fn encode_to_buf(self, string: &mut Vec<u8>) {
+                    (&*self).encode_to_buf(string);
+                }
+
+                #[inline]
+                fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
+                    (&*self).encode_to_buf_with_separator(string, separator);
+                }
+
+                #[inline]
+                #[cfg(feature = "feat-string-ext-bytes")]
+                fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
+                    (&*self).encode_to_bytes_buf(string);
+                }
+
+                #[inline]
+                #[cfg(feature = "feat-string-ext-bytes")]
+                fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
+                    (&*self).encode_to_bytes_buf_with_separator(string, separator);
                 }
             }
         )*
