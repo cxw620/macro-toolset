@@ -1,5 +1,7 @@
 //! Useful [`StringExt`] utilities for [`crate::str_concat`] macros
 
+#[cfg(feature = "feat-string-ext-base64")]
+pub mod base64;
 pub mod externs;
 pub mod general;
 #[cfg(feature = "feat-string-ext-hex")]
@@ -8,10 +10,12 @@ pub mod number;
 #[cfg(feature = "feat-string-ext-rand")]
 pub mod rand;
 
-// Re-export the `NumStr` type for convenience.
+#[cfg(feature = "feat-string-ext-base64")]
+pub use base64::b64_padding;
 #[cfg(feature = "feat-string-ext-hex")]
 // Re-export the `HexStr` type for convenience.
 pub use hex::HexStr;
+// Re-export the `NumStr` type for convenience.
 pub use number::NumStr;
 
 #[macro_export]
