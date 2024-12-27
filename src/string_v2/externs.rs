@@ -22,6 +22,9 @@ macro_rules! impl_for_extern_type {
                 self.encode_to_bytes_buf(string);
             }
         }
+
+        $(#[$outer])*
+        impl super::StringExtT for $type {}
     };
 }
 

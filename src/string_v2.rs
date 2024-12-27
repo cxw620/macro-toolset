@@ -10,7 +10,7 @@ pub use number::NumStr;
 #[macro_export]
 /// Fast concat [`String`] / &[`str`] / number.
 ///
-/// For details of params accepted, please refers to [`StringExtT`].
+/// For details of params accepted, please refers to [`StringT`].
 ///
 /// # Examples
 ///
@@ -85,6 +85,18 @@ macro_rules! str_concat_v2 {
     };
 }
 
+/// Remove the trailing separator from the string.
+///
+/// Notice: will not check if the separator exists or not!
+macro_rules! remove_separator_tailing {
+    ($string:expr, $separator:expr) => {
+        let current_len = $string.len();
+        if let Some(target_len) = current_len.checked_sub($separator.len()) {
+            $string.truncate(target_len);
+        }
+    };
+}
+
 /// Trait helper for push any string-like type to the string.
 pub trait PushAnyT {
     /// Push any string-like type to the string.
@@ -93,9 +105,6 @@ pub trait PushAnyT {
         V: StringT;
 
     /// Push any string-like type to the string with a separator.
-    ///
-    /// Only affects the array-or-slice-like types, since for a single element,
-    /// it's meaningless.
     fn push_any_with_separator<V>(&mut self, value: V, sep: &str)
     where
         V: StringT;
@@ -117,7 +126,12 @@ impl PushAnyT for String {
         V: StringT,
     {
         #[allow(unsafe_code, reason = "safe because of the `StringT` trait")]
-        value.encode_to_buf_with_separator(unsafe { self.as_mut_vec() }, sep);
+        let inner = unsafe { self.as_mut_vec() };
+
+        value.encode_to_buf_with_separator(inner, sep);
+
+        // If is `None`?
+        remove_separator_tailing!(inner, sep);
     }
 }
 
@@ -136,6 +150,7 @@ impl PushAnyT for Vec<u8> {
         V: StringT,
     {
         value.encode_to_buf_with_separator(self, sep);
+        remove_separator_tailing!(self, sep);
     }
 }
 
@@ -155,6 +170,7 @@ impl PushAnyT for bytes::BytesMut {
         V: StringT,
     {
         value.encode_to_bytes_buf_with_separator(self, sep);
+        remove_separator_tailing!(self, sep);
     }
 }
 
@@ -183,13 +199,13 @@ pub trait StringT {
 
 #[allow(clippy::len_without_is_empty)]
 /// Trait for string-like types, but extended with some methods making it not
-/// dyn capable.
+/// dyn-compatible.
 ///
 /// This is an auto trait implemented for all `StringT` types that are `Sized`.
 pub trait StringExtT: StringT + Sized {
     #[inline]
     /// With prefix.
-    fn with_prefix<P: StringT>(self, prefix: P) -> general::tuple::SeplessTuple<(P, Self)> {
+    fn with_prefix<P: StringExtT + Copy>(self, prefix: P) -> impl StringExtT {
         general::tuple::SeplessTuple {
             inner: (prefix, self),
         }
@@ -197,7 +213,7 @@ pub trait StringExtT: StringT + Sized {
 
     #[inline]
     /// With suffix.
-    fn with_suffix<S: StringT>(self, suffix: S) -> general::tuple::SeplessTuple<(Self, S)> {
+    fn with_suffix<S: StringExtT + Copy>(self, suffix: S) -> impl StringExtT {
         general::tuple::SeplessTuple {
             inner: (self, suffix),
         }
@@ -206,10 +222,11 @@ pub trait StringExtT: StringT + Sized {
     #[inline]
     /// Encode the value to the string.
     fn to_string_ext(self) -> String {
-        let mut string = String::with_capacity(64);
-        #[allow(unsafe_code, reason = "safe because of the `StringT` trait")]
-        self.encode_to_buf(unsafe { string.as_mut_vec() });
-        string
+        let mut string_buf = String::with_capacity(64);
+
+        string_buf.push_any(self);
+
+        string_buf
     }
 
     #[inline]
@@ -219,20 +236,17 @@ pub trait StringExtT: StringT + Sized {
     fn to_string_ext_with_separator(self, separator: &str) -> String {
         let mut string_buf = String::with_capacity(64);
 
-        #[allow(unsafe_code, reason = "safe because of the `StringT` trait")]
-        self.encode_to_buf_with_separator(unsafe { string_buf.as_mut_vec() }, separator);
+        string_buf.push_any_with_separator(self, separator);
 
         string_buf
     }
 }
 
-impl<T: StringT + Sized> StringExtT for T {}
-
 // =============================================================================
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! impl_for_ref {
+macro_rules! impl_for_shared_ref {
     (COPIED: $($ty:ty)*) => {
         $(
             impl StringT for &$ty {
@@ -259,6 +273,8 @@ macro_rules! impl_for_ref {
                 }
             }
 
+            impl StringExtT for &$ty {}
+
             impl StringT for &mut $ty {
                 #[inline]
                 fn encode_to_buf(self, string: &mut Vec<u8>) {
@@ -282,6 +298,8 @@ macro_rules! impl_for_ref {
                     (*self).encode_to_bytes_buf_with_separator(string, separator);
                 }
             }
+
+            impl StringExtT for &mut $ty {}
 
             impl StringT for &&$ty {
                 #[inline]
@@ -307,6 +325,8 @@ macro_rules! impl_for_ref {
                 }
             }
 
+            impl StringExtT for &&$ty {}
+
             impl StringT for &mut &$ty {
                 #[inline]
                 fn encode_to_buf(self, string: &mut Vec<u8>) {
@@ -330,6 +350,8 @@ macro_rules! impl_for_ref {
                     (**self).encode_to_bytes_buf_with_separator(string, separator);
                 }
             }
+
+            impl StringExtT for &mut &$ty {}
 
             impl StringT for &&mut $ty {
                 #[inline]
@@ -355,6 +377,8 @@ macro_rules! impl_for_ref {
                 }
             }
 
+            impl StringExtT for &&mut $ty {}
+
             impl StringT for &&&$ty {
                 #[inline]
                 fn encode_to_buf(self, string: &mut Vec<u8>) {
@@ -378,11 +402,13 @@ macro_rules! impl_for_ref {
                     (***self).encode_to_bytes_buf_with_separator(string, separator);
                 }
             }
+
+            impl StringExtT for &&&$ty {}
         )*
     };
     (REF: $($ge:ident => $ty:ty)*) => {
         $(
-            impl<$ge> StringT for $ty 
+            impl<$ge> StringT for $ty
             where
                 for <'a> &'a $ge: StringT,
             {
@@ -408,21 +434,12 @@ macro_rules! impl_for_ref {
                     (&*self).encode_to_bytes_buf_with_separator(string, separator);
                 }
             }
-        )*
-    };
-}
 
-#[doc(hidden)]
-#[macro_export]
-/// Remove the trailing separator from the string.
-///
-/// Notice: will not check if the separator exists or not!
-macro_rules! remove_separator_tailing {
-    ($string:expr, $separator:expr) => {
-        let current_len = $string.len();
-        if let Some(target_len) = current_len.checked_sub($separator.len()) {
-            $string.truncate(target_len);
-        }
+            impl<$ge> StringExtT for $ty
+            where
+                for <'a> &'a $ge: StringExtT,
+            {}
+        )*
     };
 }
 
@@ -433,6 +450,47 @@ mod tests {
 
     // Check dyn capable.
     type BoxedString = Box<dyn StringT>;
+
+    #[test]
+    fn test_prefix_or_suffix() {
+        let exp1 = "world".with_prefix("hello");
+        assert_eq!(exp1.to_string_ext(), "helloworld");
+
+        let exp2 = str_concat_v2!(sep = " "; ("hello", "world"));
+        assert_eq!(exp2, "hello world");
+
+        // dbg!(None::<()>
+        //     .with_suffix("-suffix")
+        //     .with_prefix("prefix-")
+        //     .to_string_ext());
+
+        let exp3 = str_concat_v2!(
+            sep = " ";
+            None::<()>.with_prefix("prefix-")
+        );
+
+        assert_eq!(exp3, "");
+
+        let exp4 = str_concat_v2!(
+            sep = " ";
+            None::<()>.with_prefix("prefix-"),
+            None::<()>,
+            None::<()>
+        );
+
+        assert_eq!(exp4, "");
+
+        let exp5 = str_concat_v2!(
+            sep = " ";
+            (None::<()>.with_prefix("prefix-"), None::<()>.with_prefix("prefix-")),
+            ("hello", "world"),
+            "hello".with_suffix(Some("-suffix")),
+            None::<()>.with_prefix("prefix-"),
+            "3hello".with_suffix(None::<()>).with_prefix(None::<()>),
+            None::<()>.with_prefix("prefix-").with_suffix("-suffix")
+        );
+        assert_eq!(exp5, "hello world hello-suffix 3hello");
+    }
 
     #[test]
     fn test_separator() {

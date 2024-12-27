@@ -3,8 +3,8 @@
 //! Since array-or-slice-like types can only carry  elements of the same type,
 //! tuple is the only way to `push` multiple elements with different types.
 
-use super::StringT;
-use crate::{remove_separator_tailing, wrapper};
+use super::{StringExtT, StringT};
+use crate::wrapper;
 
 wrapper! {
     #[derive(Debug, Clone, Copy)]
@@ -15,12 +15,13 @@ wrapper! {
 macro_rules! impl_for_tuple {
     ( $( $name:ident )+ ) => {
         #[allow(non_snake_case)]
-        impl<$($name: StringT),+> StringT for ($($name,)+)
-        {
+        impl<$($name: StringT),+> StringT for ($($name,)+) {
             #[inline]
             fn encode_to_buf(self, string: &mut Vec<u8>) {
                 let ($($name,)+) = self;
-                $($name.encode_to_buf(string);)+
+                $(
+                    $name.encode_to_buf(string);
+                )+
             }
 
             #[inline]
@@ -28,16 +29,16 @@ macro_rules! impl_for_tuple {
                 let ($($name,)+) = self;
                 $(
                     $name.encode_to_buf_with_separator(string, separator);
-                    string.extend(separator.as_bytes());
                 )+
-                remove_separator_tailing!(string, separator); // OK, must have one more elements in tuple
             }
 
             #[inline]
             #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                 let ($($name,)+) = self;
-                $($name.encode_to_bytes_buf(string);)+
+                $(
+                    $name.encode_to_bytes_buf(string);
+                )+
             }
 
             #[inline]
@@ -46,39 +47,68 @@ macro_rules! impl_for_tuple {
                 let ($($name,)+) = self;
                 $(
                     $name.encode_to_bytes_buf_with_separator(string, separator);
-                    string.extend(separator.as_bytes());
                 )+
-                remove_separator_tailing!(string, separator); // OK, must have one more elements in tuple
             }
         }
 
         #[allow(non_snake_case)]
-        impl<$($name: StringT),+> StringT for SeplessTuple<($($name,)+)>
-        {
+        impl<$($name: StringExtT),+> StringExtT for ($($name,)+) {
             #[inline]
-            fn encode_to_buf(self, string: &mut Vec<u8>) {
-                let ($($name,)+) = self.inner;
-                $($name.encode_to_buf(string);)+
+            fn with_prefix<P: StringExtT + Copy>(self, prefix: P) -> impl StringExtT {
+                let ($($name,)+) = self;
+
+                (
+                    $(
+                        SeplessTuple {
+                            inner: (prefix, $name),
+                        },
+                    )+
+                )
             }
 
             #[inline]
-            fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, _separator: &str) {
-                self.encode_to_buf(string);
+            fn with_suffix<S: StringExtT + Copy>(self, suffix: S) -> impl StringExtT {
+                let ($($name,)+) = self;
+
+                (
+                    $(
+                        SeplessTuple {
+                            inner: ($name, suffix),
+                        },
+                    )+
+                )
+            }
+        }
+
+        #[allow(non_snake_case)]
+        impl<$($name: StringT),+> StringT for SeplessTuple<($($name,)+)> {
+            #[inline]
+            fn encode_to_buf(self, string: &mut Vec<u8>) {
+                self.inner.encode_to_buf(string);
+            }
+
+            #[inline]
+            fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
+                self.inner.encode_to_buf(string);
+                string.extend(separator.as_bytes());
             }
 
             #[inline]
             #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
-                let ($($name,)+) = self.inner;
-                $($name.encode_to_bytes_buf(string);)+
+                self.inner.encode_to_bytes_buf(string);
             }
 
             #[inline]
             #[cfg(feature = "feat-string-ext-bytes")]
-            fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, _separator: &str) {
-                self.encode_to_bytes_buf(string);
+            fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
+                self.inner.encode_to_bytes_buf(string);
+                string.extend(separator.as_bytes());
             }
         }
+
+        #[allow(non_snake_case)]
+        impl<$($name: StringExtT),+> StringExtT for SeplessTuple<($($name,)+)> {}
     };
 }
 

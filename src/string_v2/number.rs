@@ -2,8 +2,8 @@
 
 use std::ops;
 
-use super::StringT;
-use crate::impl_for_ref;
+use super::{StringExtT, StringT};
+use crate::impl_for_shared_ref;
 
 /// Hexadecimal characters in lower case.
 static HEX_CHARS_LOWER: [u8; 16] = [
@@ -518,16 +518,16 @@ macro_rules! impl_num_str {
     };
 
     (@INTERNAL $ty:ty) => {
-        impl<const B: u8, const U: bool, const R: usize, const M: usize> StringT for NumStr<B, U, R, M, $ty>
-        {
+        impl<const B: u8, const U: bool, const R: usize, const M: usize> StringT for NumStr<B, U, R, M, $ty> {
             #[inline]
             fn encode_to_buf(self, string: &mut Vec<u8>) {
                 self.encode(string)
             }
 
             #[inline]
-            fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, _separator: &str) {
-                self.encode(string)
+            fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
+                self.encode(string);
+                string.extend(separator.as_bytes());
             }
 
             #[inline]
@@ -538,10 +538,13 @@ macro_rules! impl_num_str {
 
             #[inline]
             #[cfg(feature = "feat-string-ext-bytes")]
-            fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, _separator: &str) {
-                self.encode_bytes(string)
+            fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
+                self.encode_bytes(string);
+                string.extend(separator.as_bytes());
             }
         }
+
+        impl<const B: u8, const U: bool, const R: usize, const M: usize> StringExtT for NumStr<B, U, R, M, $ty> {}
 
         impl StringT for $ty {
             #[inline]
@@ -566,13 +569,15 @@ macro_rules! impl_num_str {
                 NumStr::new_default(self).encode_to_bytes_buf_with_separator(string, separator)
             }
         }
+
+        impl StringExtT for $ty {}
     };
 }
 
 impl_num_str!(UNSIGNED: u8 u16 u32 u64 u128 usize);
 impl_num_str!(SIGNED: i8 as u8; i16 as u16; i32 as u32; i64 as u64; i128 as u128; isize as usize);
 impl_num_str!(FLOAT: f32 f64);
-impl_for_ref!(COPIED: u8 u16 u32 u64 u128 usize i8 i16 i32 i64 i128 isize f32 f64);
+impl_for_shared_ref!(COPIED: u8 u16 u32 u64 u128 usize i8 i16 i32 i64 i128 isize f32 f64);
 
 #[cfg(test)]
 #[allow(clippy::cognitive_complexity)]

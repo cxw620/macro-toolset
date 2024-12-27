@@ -18,25 +18,25 @@
 
 use std::{borrow::Cow, rc::Rc, sync::Arc};
 
-use super::StringT;
-use crate::impl_for_ref;
+use super::{StringT, StringExtT};
+use crate::impl_for_shared_ref;
 
 macro_rules! impl_for_string {
     ($($ty:ty),*) => {
         $(
             // So ugly, but it works.
-            impl_for_string!(INTERNAL $ty);
-            impl_for_string!(INTERNAL &$ty);
-            impl_for_string!(INTERNAL &mut $ty);
-            impl_for_string!(INTERNAL &&$ty);
-            impl_for_string!(INTERNAL &&mut $ty);
-            impl_for_string!(INTERNAL &mut &$ty);
-            impl_for_string!(INTERNAL &mut &mut $ty);
-            impl_for_string!(INTERNAL &&&$ty);
+            impl_for_string!(@INTERNAL $ty);
+            impl_for_string!(@INTERNAL &$ty);
+            impl_for_string!(@INTERNAL &mut $ty);
+            impl_for_string!(@INTERNAL &&$ty);
+            impl_for_string!(@INTERNAL &&mut $ty);
+            impl_for_string!(@INTERNAL &mut &$ty);
+            impl_for_string!(@INTERNAL &mut &mut $ty);
+            impl_for_string!(@INTERNAL &&&$ty);
         )*
     };
 
-    (INTERNAL $ty:ty) => {
+    (@INTERNAL $ty:ty) => {
         impl StringT for $ty {
             #[inline]
             fn encode_to_buf(self, string: &mut Vec<u8>) {
@@ -44,8 +44,9 @@ macro_rules! impl_for_string {
             }
 
             #[inline]
-            fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, _separator: &str) {
+            fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
                 string.extend(self.as_bytes());
+                string.extend(separator.as_bytes());
             }
 
             #[inline]
@@ -56,10 +57,13 @@ macro_rules! impl_for_string {
 
             #[inline]
             #[cfg(feature = "feat-string-ext-bytes")]
-            fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, _separator: &str) {
+            fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                 string.extend(self.as_bytes());
+                string.extend(separator.as_bytes());
             }
         }
+
+        impl StringExtT for $ty {}
     }
 }
 
@@ -83,8 +87,9 @@ impl StringT for char {
     }
 
     #[inline]
-    fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, _separator: &str) {
+    fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
         self.encode_to_buf(string);
+        string.extend(separator.as_bytes());
     }
 
     #[inline]
@@ -98,9 +103,12 @@ impl StringT for char {
     }
 
     #[cfg(feature = "feat-string-ext-bytes")]
-    fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, _separator: &str) {
+    fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
         self.encode_to_bytes_buf(string);
+        string.extend(separator.as_bytes());
     }
 }
 
-impl_for_ref!(COPIED: char);
+impl StringExtT for char {}
+
+impl_for_shared_ref!(COPIED: char);
