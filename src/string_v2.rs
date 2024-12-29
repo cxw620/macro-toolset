@@ -455,6 +455,40 @@ macro_rules! impl_for_shared_ref {
     };
 }
 
+#[macro_export]
+#[doc(hidden)]
+/// impl_for_wrapper
+macro_rules! impl_for_wrapper {
+    (STRING_T: $($tt:tt)*) => {
+        $($tt)* {
+            #[inline]
+            fn encode_to_buf(self, string: &mut Vec<u8>) {
+                (&*self.inner).encode_to_buf(string);
+            }
+
+            #[inline]
+            fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
+                (&*self.inner).encode_to_buf_with_separator(string, separator);
+            }
+
+            #[inline]
+            #[cfg(feature = "feat-string-ext-bytes")]
+            fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
+                (&*self.inner).encode_to_bytes_buf(string);
+            }
+
+            #[inline]
+            #[cfg(feature = "feat-string-ext-bytes")]
+            fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
+                (&*self.inner).encode_to_bytes_buf_with_separator(string, separator);
+            }
+        }
+    };
+    (STRING_EXT_T: $($tt:tt)*) => {
+        $($tt)* {}
+    }
+}
+
 #[cfg(test)]
 #[allow(unused)]
 mod tests {
