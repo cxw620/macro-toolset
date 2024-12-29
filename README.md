@@ -35,7 +35,7 @@ The features listed in `Cargo.toml`:
 
 ## MSRV
 
-1.66
+1.75.0
 
 ## Notice
 
