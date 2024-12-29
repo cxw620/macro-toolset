@@ -40,6 +40,7 @@ criterion = "0.5.1"
 md-5 = "0.10.6"
 rand = "0.8.5"
 sha2 = "0.10.8"
+urlencoding = "2.1.3"
 
 [features]
 default = ["feat-random", "feat-string"]
@@ -59,6 +60,7 @@ dev = [
     "feat-string-ext-http",
     "feat-string-ext-rand",
     "feat-string-ext-ryu",
+    "feat-string-ext-urlencoding",
 ]
 
 # Base64 related
@@ -82,6 +84,7 @@ feat-string-ext-hex = ["dep:const-hex"]
 feat-string-ext-http = ["dep:bytes", "dep:http"]
 feat-string-ext-rand = ["feat-random", "dep:rand"]
 feat-string-ext-ryu = ["dep:ryu"]
+feat-string-ext-urlencoding = []
 
 # === Benchmarks ===
 [profile.bench]
@@ -104,6 +107,11 @@ harness = false
 [[bench]]
 name = "str_concat"
 path = "benches/str_concat.rs"
+harness = false
+
+[[bench]]
+name = "urlencoding"
+path = "benches/urlencoding.rs"
 harness = false
 
 # === Lints config ===

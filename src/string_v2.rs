@@ -9,6 +9,8 @@ pub mod hex;
 pub mod number;
 #[cfg(feature = "feat-string-ext-rand")]
 pub mod rand;
+#[cfg(feature = "feat-string-ext-urlencoding")]
+pub mod urlencoding;
 
 #[cfg(feature = "feat-string-ext-base64")]
 pub use base64::b64_padding;
@@ -196,7 +198,7 @@ pub trait StringT {
     /// Push the value to the string (the underlying `Vec<u8>`) with a
     /// separator.
     ///
-    /// Only affects the array-or-slice-like types.
+    /// The will be a tailing separator.
     fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str);
 
     #[cfg(feature = "feat-string-ext-bytes")]
@@ -207,15 +209,13 @@ pub trait StringT {
     /// Push the value to the string (the underlying `bytes::BytesMut`) with a
     /// separator.
     ///
-    /// Only affects the array-or-slice-like types.
+    /// The will be a tailing separator.
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str);
 }
 
 #[allow(clippy::len_without_is_empty)]
 /// Trait for string-like types, but extended with some methods making it not
 /// dyn-compatible.
-///
-/// This is an auto trait implemented for all `StringT` types that are `Sized`.
 pub trait StringExtT: StringT + Sized {
     #[inline]
     /// With prefix.
@@ -245,8 +245,6 @@ pub trait StringExtT: StringT + Sized {
 
     #[inline]
     /// Encode the value(s) to the string with separator.
-    ///
-    /// For single-element values, this is the same as `to_string_ext`.
     fn to_string_ext_with_separator(self, separator: &str) -> String {
         let mut string_buf = String::with_capacity(64);
 
@@ -487,12 +485,13 @@ mod tests {
 
         let exp4 = str_concat_v2!(
             sep = " ";
+            "data",
             None::<()>.with_prefix("prefix-"),
             None::<()>,
             None::<()>
         );
 
-        assert_eq!(exp4, "");
+        assert_eq!(exp4, "data");
 
         let exp5 = str_concat_v2!(
             sep = " ";
