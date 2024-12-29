@@ -111,7 +111,7 @@ where
         } else {
             return;
         }
-        while let Some(escaped_part) = encoded_bytes_iter.next() {
+        for escaped_part in encoded_bytes_iter {
             let decoded = escaped_part.get(0..=1).and_then(|escaped_part| {
                 Some((
                     from_hex_digit(escaped_part[0])?,
@@ -148,7 +148,7 @@ where
         } else {
             return;
         }
-        while let Some(escaped_part) = encoded_bytes_iter.next() {
+        for escaped_part in encoded_bytes_iter {
             let decoded = escaped_part.get(0..=1).and_then(|escaped_part| {
                 Some((
                     from_hex_digit(escaped_part[0])?,

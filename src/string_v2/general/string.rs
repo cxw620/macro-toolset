@@ -115,9 +115,9 @@ impl_for_shared_ref!(COPIED: char);
 
 #[macro_export]
 /// See [`StrWrapper`] and [`StringWrapper`].
-/// 
+///
 /// # Example
-/// 
+///
 /// ```
 /// # use std::sync::Arc;
 /// # use macro_toolset::{str_wrapper, string_v2::StringExtT};
@@ -133,14 +133,10 @@ impl_for_shared_ref!(COPIED: char);
 /// ```
 macro_rules! str_wrapper {
     (str = $data:expr) => {
-        $crate::string_v2::general::string::StrWrapper {
-            inner: $data,
-        }
+        $crate::string_v2::general::string::StrWrapper { inner: $data }
     };
     (string = $data:expr) => {
-        $crate::string_v2::general::string::StringWrapper {
-            inner: $data,
-        }
+        $crate::string_v2::general::string::StringWrapper { inner: $data }
     };
 }
 
