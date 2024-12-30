@@ -41,6 +41,15 @@ The features listed in `Cargo.toml`:
 
 This crate is currently intended for personal use mostly, but contributions are welcome.
 
+## Migration from 0.7.X to 0.8.0
+
+For 0.8.0 migration, just use structs under `macro_toolset::string_v2` and check if everything works.
+
+The most significant change is that `StringExt` is removed and just use std `String` with trait `PushAnyT` instead.
+If you just make use of `str_concat` macro, nothing needs to be changed.
+
+For more details please refer to the docs and examples.
+
 ## LICENSE
 
 GPL-3.0-only
