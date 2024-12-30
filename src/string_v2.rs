@@ -252,6 +252,18 @@ pub trait StringExtT: StringT + Sized {
 
         string_buf
     }
+
+    #[inline]
+    #[cfg(feature = "feat-string-ext-http")]
+    /// Encode the value to the string as a HTTP header value.
+    fn to_http_header_value(self) -> Result<http::HeaderValue, http::header::InvalidHeaderValue> {
+        let mut buf = self.to_string_ext().into_bytes();
+
+        // Avoid allocation if possible.
+        buf.truncate(buf.len());
+
+        http::HeaderValue::from_maybe_shared(bytes::Bytes::from(buf))
+    }
 }
 
 // =============================================================================
