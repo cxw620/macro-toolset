@@ -11,8 +11,8 @@ pub mod b64_padding {
     //! to represent the padding, convenient to use and performance improvement.
 
     use super::{
-        Base64Str, Decode, DecodeToAny, DecodeToHex, Encode, NumStr, PhantomData, StringExtT,
-        StringT,
+        Base64EncoderT, Base64Str, Decode, DecodeToAny, DecodeToHex, Encode, NumStr, PhantomData,
+        StringExtT, StringT,
     };
 
     macro_rules! enum_padding {
@@ -23,6 +23,8 @@ pub mod b64_padding {
                 #[doc = "Base64 Padding: "]
                 #[doc = stringify!($name) ]
                 pub struct $name;
+
+                impl<T: AsRef<[u8]>> Base64EncoderT for Base64Str<T, $name, Encode> {}
 
                 impl $name {
                     #[inline]
@@ -270,6 +272,9 @@ pub mod b64_padding {
 
     enum_padding!(STANDARD STANDARD_NO_PAD URL_SAFE URL_SAFE_NO_PAD);
 }
+
+/// Marker trait
+pub trait Base64EncoderT: StringExtT {}
 
 #[derive(Debug)]
 /// Command: Encode, ZST marker struct
