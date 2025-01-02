@@ -40,22 +40,22 @@ pub use base64::*;
 /// ```
 macro_rules! b64_encode {
     ($data:expr) => {
-        b64_encode!(STANDARD: $data)
+        $crate::b64_encode!(STANDARD: $data)
     };
     ($data:expr => $string:expr) => {
-        b64_encode!(STANDARD: $data => STRING: $string)
+        $crate::b64_encode!(STANDARD: $data => STRING: $string)
     };
     (STANDARD: $($tt:tt)+) => {
-        b64_encode!($crate::base64::engine::general_purpose::STANDARD, $($tt)+)
+        $crate::b64_encode!($crate::base64::engine::general_purpose::STANDARD, $($tt)+)
     };
     (STANDARD_NO_PAD: $($tt:tt)+) => {
-        b64_encode!($crate::base64::engine::general_purpose::STANDARD_NO_PAD, $($tt)+)
+        $crate::b64_encode!($crate::base64::engine::general_purpose::STANDARD_NO_PAD, $($tt)+)
     };
     (URL_SAFE: $($tt:tt)+) => {
-        b64_encode!($crate::base64::engine::general_purpose::URL_SAFE, $($tt)+)
+        $crate::b64_encode!($crate::base64::engine::general_purpose::URL_SAFE, $($tt)+)
     };
     (URL_SAFE_NO_PAD: $($tt:tt)+) => {
-        b64_encode!($crate::base64::engine::general_purpose::URL_SAFE_NO_PAD, $($tt)+)
+        $crate::b64_encode!($crate::base64::engine::general_purpose::URL_SAFE_NO_PAD, $($tt)+)
     };
     ($padding:path, $data:expr) => {{
         let mut string = String::with_capacity($data.len() * 4 / 3 + 4 + 64);
@@ -129,19 +129,19 @@ macro_rules! b64_encode {
 /// ```
 macro_rules! b64_decode {
     ($data:expr) => {
-        b64_decode!(STANDARD: $data)
+        $crate::b64_decode!(STANDARD: $data)
     };
     (STANDARD: $($tt:tt)+) => {
-        b64_decode!($crate::base64::engine::general_purpose::STANDARD, $($tt)+)
+        $crate::b64_decode!($crate::base64::engine::general_purpose::STANDARD, $($tt)+)
     };
     (STANDARD_NO_PAD: $($tt:tt)+) => {
-        b64_decode!($crate::base64::engine::general_purpose::STANDARD_NO_PAD, $($tt)+)
+        $crate::b64_decode!($crate::base64::engine::general_purpose::STANDARD_NO_PAD, $($tt)+)
     };
     (URL_SAFE: $($tt:tt)+) => {
-        b64_decode!($crate::base64::engine::general_purpose::URL_SAFE, $($tt)+)
+        $crate::b64_decode!($crate::base64::engine::general_purpose::URL_SAFE, $($tt)+)
     };
     (URL_SAFE_NO_PAD: $($tt:tt)+) => {
-        b64_decode!($crate::base64::engine::general_purpose::URL_SAFE_NO_PAD, $($tt)+)
+        $crate::b64_decode!($crate::base64::engine::general_purpose::URL_SAFE_NO_PAD, $($tt)+)
     };
     ($padding:path, $data:expr) => {
         $crate::base64::Engine::decode(&$padding, $data)
@@ -158,7 +158,7 @@ macro_rules! b64_decode {
 /// Base64 encode with [`bytes::Bytes`] returned
 macro_rules! b64_encode_bytes {
     ($data:expr) => {
-        b64_encode_bytes!($data, $crate::base64::engine::general_purpose::STANDARD)
+        $crate::b64_encode_bytes!($data, $crate::base64::engine::general_purpose::STANDARD)
     };
     ($data:expr, $padding:path) => {{
         let data = $data.as_ref();
