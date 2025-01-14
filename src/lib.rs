@@ -7,14 +7,12 @@ pub mod hash;
 pub mod misc;
 #[cfg(feature = "feat-random")]
 pub mod random;
-#[deprecated(
-    since = "0.8.0-rc.1",
-    note = "Use `string_v2` instead, v1 will be removed in 0.9.0."
-)]
 #[cfg(feature = "feat-string")]
 pub mod string;
+
 #[cfg(feature = "feat-string")]
-pub mod string_v2;
+#[deprecated(since = "0.8.0", note = "Use `string` in release version instead")]
+pub use string as string_v2;
 
 #[macro_export]
 /// Faster way to get current timestamp other than
@@ -155,6 +153,11 @@ mod tests {
     wrapper!(pub MyStringPubCrate(pub(crate) String));
     // Derive is OK!
     wrapper!(pub MyStringDerived(String), derive(Debug, Clone, PartialEq, Eq, Hash));
+    wrapper! {
+        #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+        /// MyStringDerived
+        pub MyStringDerived2(String)
+    }
     wrapper!(pub MyStringPubInnerDerived(pub String), derive(Debug, Clone, PartialEq, Eq, Hash));
     wrapper!(pub MyStringPubCrateInnerDerived(pub(crate) String), derive(Debug, Clone, PartialEq, Eq, Hash));
     // Lifetime is supported too!
@@ -167,10 +170,4 @@ mod tests {
     wrapper!(pub MyStringLifetimePubT<T>(pub T), derive(Debug, Clone));
     // Complicated!
     wrapper!(pub MyStringLifetimePubRefT<'a, T>(pub &'a T), derive(Debug, Clone));
-}
-
-wrapper! {
-    #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-    /// MyStringDerived
-    pub MyStringDerived(String)
 }

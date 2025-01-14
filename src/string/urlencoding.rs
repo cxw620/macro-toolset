@@ -9,7 +9,7 @@ use crate::wrapper;
 /// # Example
 ///
 /// ```
-/// # use macro_toolset::{urlencoding_str, string_v2::StringExtT};
+/// # use macro_toolset::{urlencoding_str, string::StringExtT};
 /// let data = urlencoding_str!(E: "你好, 世界").to_string_ext();
 /// assert_eq!(data, "%E4%BD%A0%E5%A5%BD%2C%20%E4%B8%96%E7%95%8C");
 /// let data = urlencoding_str!(D: "%E4%BD%A0%E5%A5%BD%2C%20%E4%B8%96%E7%95%8C").to_string_ext();
@@ -17,10 +17,10 @@ use crate::wrapper;
 /// ```
 macro_rules! urlencoding_str {
     (E: $data:expr) => {
-        $crate::string_v2::urlencoding::Encode { inner: $data }
+        $crate::string::urlencoding::Encode { inner: $data }
     };
     (D: $data:expr) => {
-        $crate::string_v2::urlencoding::Decode { inner: $data }
+        $crate::string::urlencoding::Decode { inner: $data }
     };
 }
 

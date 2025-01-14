@@ -2,8 +2,46 @@
 
 use rand::{distributions::Slice, Rng};
 
-use super::{NumStr, StringExtT};
+use super::{NumStr, StringExtT, StringT};
 use crate::random::fast_random;
+
+#[macro_export]
+/// See [`RandStr`] and [`RandHexStr`] for more information.
+///
+/// # Example
+///
+/// ```
+/// use macro_toolset::{random_str, string::PushAnyT};
+/// let mut string = String::new();
+/// string.push_any(random_str!(16, b"abcABC123"));
+/// string.push_any(random_str!(HEX)); // 16 (default, max 16) * 1 (default) + 0 (default, max 16)
+/// string.push_any(random_str!(HEX: 16)); // 16 * 1 (default) + 0 (default)
+/// string.push_any(random_str!(HEX: 16, 3)); // 16 * 3 + 0 (default)
+/// string.push_any(random_str!(HEX: 16, 3, 8)); // 16 * 3 + 8
+/// ```
+///
+/// // If you like, just `to_string_ext` is fine.
+/// ```
+/// use macro_toolset::{random_str, string::StringExtT};
+/// let string = random_str!(16, b"abcABC123").to_string_ext();
+/// ```
+macro_rules! random_str {
+    ($range:expr, $charset:expr) => {{
+        $crate::string::rand::RandStr::<$range>::with_charset($charset)
+    }};
+    (HEX) => {{
+        $crate::string::rand::RandHexStr::new_default()
+    }};
+    (HEX: $l:expr) => {{
+        $crate::string::rand::RandHexStr::<$l>::new()
+    }};
+    (HEX: $l:expr, $rp:expr) => {{
+        $crate::string::rand::RandHexStr::<$l, $rp>::new()
+    }};
+    (HEX: $l:expr, $rp:expr, $lp:expr) => {{
+        $crate::string::rand::RandHexStr::<$l, $rp, $lp>::new()
+    }};
+}
 
 #[derive(Debug, Clone, Copy, Default)]
 /// Randon hex-like string, with fix length.
@@ -25,19 +63,19 @@ use crate::random::fast_random;
 /// Since `#![feature(generic_const_exprs)]` is not stable, we have to make use
 /// of these complex const generics.
 ///
-/// Notice: will check if params are valid when you push this into the
-/// [`StringExt`](super::StringExt), or panic in debug mode, work normally but
-/// slower in release mode.
+/// Notice: will check if params are valid when you push this to a string, or
+/// panic in debug mode, work normally but slower in release mode.
 pub struct RandHexStr<const L: usize = 16, const RP: usize = 1, const LP: usize = 0>;
 
-impl<const L: usize, const RP: usize, const LP: usize> StringExtT for RandHexStr<L, RP, LP> {
-    fn push_to_string(self, string: &mut Vec<u8>) {
+impl<const L: usize, const RP: usize, const LP: usize> StringT for RandHexStr<L, RP, LP> {
+    #[inline]
+    fn encode_to_buf(self, string: &mut Vec<u8>) {
         match L {
             1..=16 => {
                 for _ in 0..RP {
                     NumStr::hex_default(fast_random())
                         .set_resize_len::<L>()
-                        .push_to_string(string);
+                        .encode_to_buf(string);
                 }
 
                 if LP > 0 {
@@ -45,7 +83,7 @@ impl<const L: usize, const RP: usize, const LP: usize> StringExtT for RandHexStr
 
                     NumStr::hex_default(fast_random())
                         .set_resize_len::<LP>()
-                        .push_to_string(string);
+                        .encode_to_buf(string);
                 }
             }
             0 => {}
@@ -64,7 +102,58 @@ impl<const L: usize, const RP: usize, const LP: usize> StringExtT for RandHexStr
             }
         }
     }
+
+    #[inline]
+    fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
+        self.encode_to_buf(string);
+        string.extend(separator.as_bytes());
+    }
+
+    #[inline]
+    #[cfg(feature = "feat-string-ext-bytes")]
+    fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
+        match L {
+            1..=16 => {
+                for _ in 0..RP {
+                    NumStr::hex_default(fast_random())
+                        .set_resize_len::<L>()
+                        .encode_to_bytes_buf(string);
+                }
+
+                if LP > 0 {
+                    debug_assert!(LP <= 16, "LP should be 0..=16");
+
+                    NumStr::hex_default(fast_random())
+                        .set_resize_len::<LP>()
+                        .encode_to_bytes_buf(string);
+                }
+            }
+            0 => {}
+            _ => {
+                #[cfg(any(debug_assertions, test))]
+                unreachable!("L should be 0..=16");
+
+                #[cfg(not(any(debug_assertions, test)))]
+                // For RELEASE mode, avoid panic but still generate random string like general
+                // RandStr does.
+                string.extend(
+                    rand::thread_rng()
+                        .sample_iter(&Slice::new(b"0123456789abcdef").unwrap())
+                        .take(L * RP + LP),
+                );
+            }
+        }
+    }
+
+    #[inline]
+    #[cfg(feature = "feat-string-ext-bytes")]
+    fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
+        self.encode_to_bytes_buf(string);
+        string.extend(separator.as_bytes());
+    }
 }
+
+impl<const L: usize, const RP: usize, const LP: usize> StringExtT for RandHexStr<L, RP, LP> {}
 
 impl RandHexStr {
     #[inline]
@@ -75,8 +164,8 @@ impl RandHexStr {
     ///
     /// ```rust
     /// # use macro_toolset::string::{RandHexStr, StringExtT};
-    /// let rand_str = RandHexStr::new_default().to_string_ext();
-    /// assert_eq!(rand_str.len(), 16);
+    /// let random_str = RandHexStr::new_default().to_string_ext();
+    /// assert_eq!(random_str.len(), 16);
     /// ```
     pub const fn new_default() -> Self {
         Self
@@ -92,8 +181,8 @@ impl<const L: usize, const RP: usize, const LP: usize> RandHexStr<L, RP, LP> {
     ///
     /// ```rust
     /// # use macro_toolset::string::{RandHexStr, StringExtT};
-    /// let rand_str = RandHexStr::<16, 3, 8>::new().to_string_ext();
-    /// assert_eq!(rand_str.len(), 56);
+    /// let random_str = RandHexStr::<16, 3, 8>::new().to_string_ext();
+    /// assert_eq!(random_str.len(), 56);
     /// ```
     pub const fn new() -> Self {
         RandHexStr
@@ -139,8 +228,9 @@ impl<const L: usize, const RP: usize, const LP: usize> RandHexStr<L, RP, LP> {
 /// faster than this (when feature `feat-random-fast` enabled).
 pub struct RandStr<'r, const L: usize = 32>(&'r [u8]);
 
-impl<const L: usize> StringExtT for RandStr<'_, L> {
-    fn push_to_string(self, string: &mut Vec<u8>) {
+impl<const L: usize> StringT for RandStr<'_, L> {
+    #[inline]
+    fn encode_to_buf(self, string: &mut Vec<u8>) {
         if self.0.is_empty() {
             return;
         }
@@ -149,9 +239,56 @@ impl<const L: usize> StringExtT for RandStr<'_, L> {
             rand::thread_rng()
                 .sample_iter(Slice::new(self.0).unwrap())
                 .take(L),
-        )
+        );
+    }
+
+    #[inline]
+    fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
+        if self.0.is_empty() {
+            return;
+        }
+
+        string.extend(
+            rand::thread_rng()
+                .sample_iter(Slice::new(self.0).unwrap())
+                .take(L),
+        );
+
+        string.extend(separator.as_bytes());
+    }
+
+    #[inline]
+    #[cfg(feature = "feat-string-ext-bytes")]
+    fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
+        if self.0.is_empty() {
+            return;
+        }
+
+        string.extend(
+            rand::thread_rng()
+                .sample_iter(Slice::new(self.0).unwrap())
+                .take(L),
+        );
+    }
+
+    #[inline]
+    #[cfg(feature = "feat-string-ext-bytes")]
+    fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
+        if self.0.is_empty() {
+            return;
+        }
+
+        string.extend(
+            rand::thread_rng()
+                .sample_iter(Slice::new(self.0).unwrap())
+                .take(L),
+        );
+
+        string.extend(separator.as_bytes());
     }
 }
+
+impl<const L: usize> StringExtT for RandStr<'_, L> {}
 
 impl<'r> RandStr<'r> {
     #[inline]

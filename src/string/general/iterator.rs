@@ -38,7 +38,7 @@ wrapper! {
 /// See [`IterWrapper`].
 macro_rules! str_iter_wrapper {
     ($inner:expr) => {
-        $crate::string_v2::general::iterator::IterWrapper { inner: $inner }
+        $crate::string::general::iterator::IterWrapper { inner: $inner }
     };
 }
 

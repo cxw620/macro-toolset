@@ -1,7 +1,7 @@
 #![allow(missing_docs)]
 
 use criterion::{criterion_group, criterion_main, Criterion};
-use macro_toolset::{string_v2::StringExtT, urlencoding_str};
+use macro_toolset::{string::StringExtT, urlencoding_str};
 
 fn bench_urlencoding(c: &mut Criterion) {
     let mut group = c.benchmark_group("UrlEncoding");
@@ -10,7 +10,7 @@ fn bench_urlencoding(c: &mut Criterion) {
         b.iter(|| std::hint::black_box(urlencoding::encode("你好, 世界")));
     });
 
-    group.bench_function("string_v2/urlencoding/encode", |b| {
+    group.bench_function("string/urlencoding/encode", |b| {
         b.iter(|| {
             std::hint::black_box(
                 urlencoding_str!(
@@ -29,7 +29,7 @@ fn bench_urlencoding(c: &mut Criterion) {
         });
     });
 
-    group.bench_function("string_v2/urlencoding/decode", |b| {
+    group.bench_function("string/urlencoding/decode", |b| {
         b.iter(|| {
             std::hint::black_box(
                 urlencoding_str!(D: "%E4%BD%A0%E5%A5%BD%2C%20%E4%B8%96%E7%95%8C").to_string_ext(),

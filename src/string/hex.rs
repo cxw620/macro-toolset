@@ -3,21 +3,19 @@
 //! Actually just with [`NumStr`](crate::string::NumStr) you can do so.
 //! However for fixed length hex string, [`const_hex`] does better.
 
-use super::StringExtT;
+use super::{StringExtT, StringT};
 
 #[derive(Debug, Clone)]
 /// Hex string with fixed length.
 ///
-/// # Generic (TODO: Replace with bitflag?)
+/// # Generic
 ///
 /// - N: Length of target buffer, the length of the final string is 2*N (+1 if
 ///   with prefix).
 /// - P: Prefix `0x`, default false
 /// - U: Uppercase, default false
 ///
-/// This implements [`StringExtT`](super::StringExtT).
-///
-/// For hex string with variable length, use [`NumStr`](super::NumStr).
+/// For hex string with non-fixed length, use [`NumStr`](super::NumStr).
 pub enum HexStr<'s, const N: usize, const P: bool = false, const U: bool = false> {
     /// Owned
     Owned(Vec<u8>),
@@ -59,7 +57,10 @@ impl<'s, const N: usize, const P: bool, const U: bool> HexStr<'s, N, P, U> {
 
     #[inline]
     /// Encode to string
-    fn encode(&self, string: &mut Vec<u8>) {
+    fn encode<T>(&self, string: &mut T)
+    where
+        T: for<'a> Extend<&'a u8>,
+    {
         let mut buffer = [0; N];
 
         for (idx, &i) in (0..N).rev().zip(
@@ -89,17 +90,61 @@ impl<'s, const N: usize, const P: bool, const U: bool> HexStr<'s, N, P, U> {
     }
 }
 
-impl<const N: usize, const P: bool, const U: bool> StringExtT for HexStr<'_, N, P, U> {
-    fn push_to_string(self, string: &mut Vec<u8>) {
+impl<const N: usize, const P: bool, const U: bool> StringT for HexStr<'_, N, P, U> {
+    #[inline]
+    fn encode_to_buf(self, string: &mut Vec<u8>) {
         self.encode(string);
+    }
+
+    #[inline]
+    fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
+        self.encode(string);
+        string.extend(separator.as_bytes());
+    }
+
+    #[inline]
+    #[cfg(feature = "feat-string-ext-bytes")]
+    fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
+        self.encode(string);
+    }
+
+    #[inline]
+    #[cfg(feature = "feat-string-ext-bytes")]
+    fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
+        self.encode(string);
+        string.extend(separator.as_bytes());
     }
 }
 
-impl<const N: usize, const P: bool> StringExtT for const_hex::Buffer<N, P> {
-    fn push_to_string(self, string: &mut Vec<u8>) {
-        string.extend(self.as_bytes())
+impl<const N: usize, const P: bool, const U: bool> StringExtT for HexStr<'_, N, P, U> {}
+
+impl<const N: usize, const P: bool> StringT for const_hex::Buffer<N, P> {
+    #[inline]
+    fn encode_to_buf(self, string: &mut Vec<u8>) {
+        string.extend(self.as_bytes());
+    }
+
+    #[inline]
+    fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
+        string.extend(self.as_bytes());
+        string.extend(separator.as_bytes());
+    }
+
+    #[inline]
+    #[cfg(feature = "feat-string-ext-bytes")]
+    fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
+        string.extend(self.as_bytes());
+    }
+
+    #[inline]
+    #[cfg(feature = "feat-string-ext-bytes")]
+    fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
+        string.extend(self.as_bytes());
+        string.extend(separator.as_bytes());
     }
 }
+
+impl<const N: usize, const P: bool> StringExtT for const_hex::Buffer<N, P> {}
 
 #[cfg(test)]
 mod test {

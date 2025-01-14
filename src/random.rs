@@ -3,7 +3,7 @@
 #[macro_export]
 /// Generate random `String`.
 ///
-/// For [`PushAnyT::push_any`](crate::string_v2::PushAnyT::push_any),
+/// For [`PushAnyT::push_any`](crate::string::PushAnyT::push_any),
 /// [`random_str`](crate::random_str) is recommended.
 ///
 /// # Example

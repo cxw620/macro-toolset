@@ -1,8 +1,8 @@
-//! Bytes to Base64 string
+//! Base64 string utilities.
 
 use std::{marker::PhantomData, ops};
 
-use super::StringExtT;
+use super::{NumStr, StringExtT, StringT};
 
 pub mod b64_padding {
     //! Base64 padding
@@ -10,8 +10,10 @@ pub mod b64_padding {
     //! The `base64` crate has ugly APIs and we here create some ZSTs
     //! to represent the padding, convenient to use and performance improvement.
 
-    use super::{Base64Str, Decode, DecodeToAny, DecodeToHex, Encode, PhantomData, StringExtT};
-    use crate::string::NumStr;
+    use super::{
+        Base64EncoderT, Base64Str, Decode, DecodeToAny, DecodeToHex, Encode, NumStr, PhantomData,
+        StringExtT, StringT,
+    };
 
     macro_rules! enum_padding {
         ($($name:ident) *) => {
@@ -21,6 +23,8 @@ pub mod b64_padding {
                 #[doc = "Base64 Padding: "]
                 #[doc = stringify!($name) ]
                 pub struct $name;
+
+                impl<T: AsRef<[u8]>> Base64EncoderT for Base64Str<T, $name, Encode> {}
 
                 impl $name {
                     #[inline]
@@ -74,8 +78,9 @@ pub mod b64_padding {
                     }
                 }
 
-                impl<T: AsRef<[u8]>> StringExtT for Base64Str<T, $name, Encode> {
-                    fn push_to_string(self, string: &mut Vec<u8>) {
+                impl<T: AsRef<[u8]>> StringT for Base64Str<T, $name, Encode> {
+                    #[inline]
+                    fn encode_to_buf(self, string: &mut Vec<u8>) {
                         let inner = self.inner.as_ref();
 
                         let current_len = string.len();
@@ -98,10 +103,52 @@ pub mod b64_padding {
 
                         string.truncate(current_len + bytes_written);
                     }
+
+                    #[inline]
+                    fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
+                        self.encode_to_buf(string);
+                        string.extend(separator.as_bytes());
+                    }
+
+                    #[inline]
+                    #[cfg(feature = "feat-string-ext-bytes")]
+                    fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
+                        let inner = self.inner.as_ref();
+
+                        let current_len = string.len();
+                        let base64_len = inner.len() * 4 / 3 + 4;
+                        let target_len = current_len + base64_len;
+
+                        string.reserve(base64_len);
+                        #[allow(unsafe_code)]
+                        // Safety: have reserved and allocate enough space
+                        unsafe {
+                            string.set_len(target_len);
+                        }
+
+                        let bytes_written = base64::Engine::encode_slice(
+                            &base64::engine::general_purpose::$name,
+                            self.inner,
+                            &mut string[current_len..target_len],
+                        )
+                        .unwrap_or(0);
+
+                        string.truncate(current_len + bytes_written);
+                    }
+
+                    #[inline]
+                    #[cfg(feature = "feat-string-ext-bytes")]
+                    fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
+                        self.encode_to_bytes_buf(string);
+                        string.extend(separator.as_bytes());
+                    }
                 }
 
-                impl<T: AsRef<[u8]>> StringExtT for Base64Str<T, $name, Decode> {
-                    fn push_to_string(self, string: &mut Vec<u8>) {
+                impl<T: AsRef<[u8]>> StringExtT for Base64Str<T, $name, Encode> {}
+
+                impl<T: AsRef<[u8]>> StringT for Base64Str<T, $name, Decode> {
+                    #[inline]
+                    fn encode_to_buf(self, string: &mut Vec<u8>) {
                         use base64::Engine;
 
                         let data = base64::engine::general_purpose::$name
@@ -112,19 +159,75 @@ pub mod b64_padding {
                             string.extend(data)
                         }
                     }
+
+                    #[inline]
+                    fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
+                        self.encode_to_buf(string);
+                        string.extend(separator.as_bytes());
+                    }
+
+                    #[inline]
+                    #[cfg(feature = "feat-string-ext-bytes")]
+                    fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
+                        use base64::Engine;
+
+                        let data = base64::engine::general_purpose::$name
+                            .decode(self.inner.as_ref())
+                            .unwrap_or_default();
+
+                        if std::str::from_utf8(&data).is_ok() {
+                            string.extend(data)
+                        }
+                    }
+
+                    #[inline]
+                    #[cfg(feature = "feat-string-ext-bytes")]
+                    fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
+                        self.encode_to_bytes_buf(string);
+                        string.extend(separator.as_bytes());
+                    }
                 }
 
-                impl<T: AsRef<[u8]>> StringExtT for Base64Str<T, $name, DecodeToAny> {
-                    fn push_to_string(self, string: &mut Vec<u8>) {
+                impl<T: AsRef<[u8]>> StringExtT for Base64Str<T, $name, Decode> {}
+
+                impl<T: AsRef<[u8]>> StringT for Base64Str<T, $name, DecodeToAny> {
+                    #[inline]
+                    fn encode_to_buf(self, string: &mut Vec<u8>) {
                         use base64::Engine;
 
                         let _ = base64::engine::general_purpose::$name
                             .decode_vec(self.inner.as_ref(), string);
                     }
+
+                    #[inline]
+                    fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
+                        self.encode_to_buf(string);
+                        string.extend(separator.as_bytes());
+                    }
+
+                    #[inline]
+                    #[cfg(feature = "feat-string-ext-bytes")]
+                    fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
+                        use base64::Engine;
+
+                        if let Ok(data) = base64::engine::general_purpose::$name.decode(self.inner.as_ref()) {
+                            string.extend(data);
+                        }
+                    }
+
+                    #[inline]
+                    #[cfg(feature = "feat-string-ext-bytes")]
+                    fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
+                        self.encode_to_bytes_buf(string);
+                        string.extend(separator.as_bytes());
+                    }
                 }
 
-                impl<T: AsRef<[u8]>> StringExtT for Base64Str<T, $name, DecodeToHex> {
-                    fn push_to_string(self, string: &mut Vec<u8>) {
+                impl<T: AsRef<[u8]>> StringExtT for Base64Str<T, $name, DecodeToAny> {}
+
+                impl<T: AsRef<[u8]>> StringT for Base64Str<T, $name, DecodeToHex> {
+                    #[inline]
+                    fn encode_to_buf(self, string: &mut Vec<u8>) {
                         use base64::Engine;
 
                         base64::engine::general_purpose::$name
@@ -132,15 +235,46 @@ pub mod b64_padding {
                             .unwrap_or_default()
                             .into_iter()
                             .map(NumStr::hex_byte_default)
-                            .push_to_string(string);
+                            .encode_to_buf(string);
+                    }
+
+                    #[inline]
+                    fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
+                        self.encode_to_buf(string);
+                        string.extend(separator.as_bytes());
+                    }
+
+                    #[inline]
+                    #[cfg(feature = "feat-string-ext-bytes")]
+                    fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
+                        use base64::Engine;
+
+                        base64::engine::general_purpose::$name
+                            .decode(self.inner.as_ref())
+                            .unwrap_or_default()
+                            .into_iter()
+                            .map(NumStr::hex_byte_default)
+                            .encode_to_bytes_buf(string);
+                    }
+
+                    #[inline]
+                    #[cfg(feature = "feat-string-ext-bytes")]
+                    fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
+                        self.encode_to_bytes_buf(string);
+                        string.extend(separator.as_bytes());
                     }
                 }
+
+                impl<T: AsRef<[u8]>> StringExtT for Base64Str<T, $name, DecodeToHex> {}
             )*
         };
     }
 
     enum_padding!(STANDARD STANDARD_NO_PAD URL_SAFE URL_SAFE_NO_PAD);
 }
+
+/// Marker trait
+pub trait Base64EncoderT: StringExtT {}
 
 #[derive(Debug)]
 /// Command: Encode, ZST marker struct
@@ -194,7 +328,7 @@ impl<T: AsRef<[u8]>, P, C> AsRef<[u8]> for Base64Str<T, P, C> {
 #[allow(unsafe_code, reason = "test unsafe")]
 #[cfg(test)]
 mod test {
-    use crate::string::{base64::b64_padding, StringExtT};
+    use super::*;
 
     #[test]
     fn test_base64() {

@@ -1,6 +1,6 @@
 [package]
 name = "macro-toolset"
-version = "0.8.0-rc.6"
+version = "0.8.0"
 edition = "2021"
 rust-version = "1.75.0"
 
@@ -29,7 +29,6 @@ foldhash = { version = "0.1.0", optional = true }
 
 # Integration
 ammonia = { version = "4.0.0", optional = true }
-axum-core = { version = "0.4.0", optional = true }
 chrono = { version = "0.4.20", optional = true, default-features = false, features = ["alloc"] }
 http = { version = "1.0.0", optional = true }
 
@@ -52,7 +51,6 @@ dev = [
     "feat-random-fast",
     "feat-string",
     "feat-string-ext-ammonia",
-    "feat-string-ext-axum",
     "feat-string-ext-base64",
     "feat-string-ext-bytes",
     "feat-string-ext-chrono",
@@ -76,7 +74,6 @@ feat-random-fast = ["feat-random", "dep:foldhash"]
 # StringExt related
 feat-string = []
 feat-string-ext-ammonia = ["dep:ammonia"]
-feat-string-ext-axum = ["dep:axum-core", "dep:bytes"]
 feat-string-ext-base64 = ["dep:base64"]
 feat-string-ext-bytes = ["dep:bytes"]
 feat-string-ext-chrono = ["dep:chrono"]

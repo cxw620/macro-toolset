@@ -120,7 +120,7 @@ impl_for_shared_ref!(COPIED: char);
 ///
 /// ```
 /// # use std::sync::Arc;
-/// # use macro_toolset::{str_wrapper, string_v2::StringExtT};
+/// # use macro_toolset::{str_wrapper, string::StringExtT};
 /// let general_str = str_wrapper!(str = "hello");
 /// # assume_string_ext_t(general_str);
 /// let smart_pointer_str = str_wrapper!(str = Arc::<str>::from("hello"));
@@ -133,10 +133,10 @@ impl_for_shared_ref!(COPIED: char);
 /// ```
 macro_rules! str_wrapper {
     (str = $data:expr) => {
-        $crate::string_v2::general::string::StrWrapper { inner: $data }
+        $crate::string::general::string::StrWrapper { inner: $data }
     };
     (string = $data:expr) => {
-        $crate::string_v2::general::string::StringWrapper { inner: $data }
+        $crate::string::general::string::StringWrapper { inner: $data }
     };
 }
 

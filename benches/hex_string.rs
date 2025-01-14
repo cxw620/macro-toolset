@@ -4,8 +4,8 @@ use std::fmt;
 
 use criterion::{criterion_group, criterion_main, Criterion};
 use macro_toolset::{
-    str_concat_v2 as str_concat,
-    string_v2::{HexStr, NumStr, StringExtT},
+    str_concat,
+    string::{HexStr, NumStr, StringExtT},
 };
 
 #[repr(transparent)]

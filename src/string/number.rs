@@ -1,8 +1,9 @@
 //! Number to string, fast and efficient utilities.
 
-use std::{ops, str};
+use std::ops;
 
-use super::StringExtT;
+use super::{StringExtT, StringT};
+use crate::impl_for_shared_ref;
 
 /// Hexadecimal characters in lower case.
 static HEX_CHARS_LOWER: [u8; 16] = [
@@ -321,23 +322,66 @@ macro_rules! impl_num_str {
                         &mut string[current_ptr..final_ptr]
                     }.reverse();
                 }
-            }
 
-            impl<const B: u8, const U: bool, const R: usize, const M: usize> StringExtT
-                for NumStr<B, U, R, M, $ty>
-            {
                 #[inline]
-                fn push_to_string(self, string: &mut Vec<u8>) {
-                    self.encode(string)
+                #[cfg(feature = "feat-string-ext-bytes")]
+                /// Encode the number to the str
+                pub fn encode_bytes(self, string: &mut bytes::BytesMut) {
+                    let current_ptr = string.len();
+
+                    if R > 0 {
+                        string.resize(current_ptr + R, b'0');
+
+                        let (mut num, charset) = if self.0 == 0 {
+                            return
+                        } else {
+                            (self.0, Self::charset())
+                        };
+
+                        let string = &mut string[current_ptr..current_ptr + R];
+
+                        let mut count = 0;
+
+                        while let Some(s) = string.get_mut(count) {
+                            *s = charset[(num % B as $ty) as usize];
+                            num /= B as $ty;
+                            count += 1;
+
+                            if num <= 0 {
+                                break
+                            }
+                        }
+
+                        string
+                    } else {
+                        let (mut num, charset) = if self.0 == 0 {
+                            string.extend(b"0");
+                            return
+                        } else {
+                            (self.0, Self::charset())
+                        };
+
+                        let mut count = 0;
+
+                        while num > 0 {
+                            count += 1;
+                            string.extend([charset[(num % B as $ty) as usize]]);
+                            num /= B as $ty;
+                        }
+
+                        // Minimal length
+                        while count < M {
+                            count += 1;
+                            string.extend([b'0']);
+                        }
+
+                        let final_ptr = string.len();
+                        &mut string[current_ptr..final_ptr]
+                    }.reverse();
                 }
             }
 
-            impl StringExtT for $ty {
-                #[inline]
-                fn push_to_string(self, string: &mut Vec<u8>) {
-                    NumStr::new_default(self).push_to_string(string)
-                }
-            }
+            impl_num_str!(@INTERNAL $ty);
         )+
     };
     (SIGNED: $($ty:ty as $uty:ty);+) => {
@@ -353,32 +397,29 @@ macro_rules! impl_num_str {
 
                     NumStr::<B, U, 0, 0, _>::new(self.0.unsigned_abs()).encode(string);
                 }
-            }
 
-            impl<const B: u8, const U: bool, const R: usize, const M: usize> StringExtT
-                for NumStr<B, U, R, M, $ty>
-            {
                 #[inline]
-                fn push_to_string(self, string: &mut Vec<u8>) {
-                    self.encode(string)
+                #[cfg(feature = "feat-string-ext-bytes")]
+                /// Encode the number to the str
+                pub fn encode_bytes(self, string: &mut bytes::BytesMut) {
+                    if self.is_negative() {
+                        string.extend(b"-");
+                        // No resize or minimum length for signed numbers!
+                    }
+
+                    NumStr::<B, U, 0, 0, _>::new(self.0.unsigned_abs()).encode_bytes(string);
                 }
             }
 
-            impl StringExtT for $ty {
-                #[inline]
-                fn push_to_string(self, string: &mut Vec<u8>) {
-                    NumStr::new_default(self).push_to_string(string)
-                }
-            }
+            impl_num_str!(@INTERNAL $ty);
         )+
     };
     (FLOAT: $($ty:ty) +) => {
         $(
-            impl<const B: u8, const U: bool, const R: usize, const M: usize> StringExtT
-                for NumStr<B, U, R, M, $ty>
-            {
+            impl<const B: u8, const U: bool, const R: usize, const M: usize> NumStr<B, U, R, M, $ty> {
                 #[inline]
-                fn push_to_string(mut self, string: &mut Vec<u8>) {
+                /// Encode the number to the str
+                pub fn encode(mut self, string: &mut Vec<u8>) {
                     if U {
                         self.0 = self.0.trunc();
                     }
@@ -392,7 +433,7 @@ macro_rules! impl_num_str {
                     string.extend(ryu::Buffer::new().format(self.0).as_bytes());
 
                     #[allow(unsafe_code, reason = "must be valid utf8")]
-                    match unsafe { str::from_utf8_unchecked(string) }.rfind('.') {
+                    match unsafe { std::str::from_utf8_unchecked(string) }.rfind('.') {
                         Some(dot_pos) if self.0.is_finite() => {
                             if U {
                                 string.truncate(dot_pos);
@@ -414,7 +455,7 @@ macro_rules! impl_num_str {
                             string.push(b'.');
                             if R > 0 {
                                 string.resize(original_len + R + 1, b'0');
-                            } else if M > 0{
+                            } else if M > 0 {
                                 string.resize(original_len + M + 1, b'0');
                             } else {
                                 string.push(b'0');
@@ -422,21 +463,121 @@ macro_rules! impl_num_str {
                         }
                     }
                 }
-            }
 
-            impl StringExtT for $ty {
                 #[inline]
-                fn push_to_string(self, string: &mut Vec<u8>) {
-                    NumStr::new_default(self).push_to_string(string)
+                #[cfg(feature = "feat-string-ext-bytes")]
+                /// Encode the number to the str
+                pub fn encode_bytes(mut self, string: &mut bytes::BytesMut) {
+                    if U {
+                        self.0 = self.0.trunc();
+                    }
+
+                    let original_len = string.len();
+
+                    #[cfg(not(feature = "feat-string-ext-ryu"))]
+                    string.extend(format!("{}", self.0).as_bytes());
+
+                    #[cfg(feature = "feat-string-ext-ryu")]
+                    string.extend(ryu::Buffer::new().format(self.0).as_bytes());
+
+                    #[allow(unsafe_code, reason = "must be valid utf8")]
+                    match unsafe { std::str::from_utf8_unchecked(string) }.rfind('.') {
+                        Some(dot_pos) if self.0.is_finite() => {
+                            if U {
+                                string.truncate(dot_pos);
+                            } else if R > 0 {
+                                string.resize(dot_pos + R + 1, b'0');
+                            } else if dot_pos - original_len < M {
+                                string.resize(dot_pos + M + 1, b'0');
+                            } else {
+                                // do nothing
+                            }
+                        },
+                        Some(_) => {
+                            // is NOT finite, do nothing
+                        },
+                        None if (U || !self.0.is_finite()) => {
+                            // is not finite, or integer only, do nothing
+                        },
+                        None => {
+                            string.extend(b".");
+                            if R > 0 {
+                                string.resize(original_len + R + 1, b'0');
+                            } else if M > 0 {
+                                string.resize(original_len + M + 1, b'0');
+                            } else {
+                                string.extend(b"0");
+                            }
+                        }
+                    }
                 }
             }
+
+            impl_num_str!(@INTERNAL $ty);
         )*
-    }
+    };
+
+    (@INTERNAL $ty:ty) => {
+        impl<const B: u8, const U: bool, const R: usize, const M: usize> StringT for NumStr<B, U, R, M, $ty> {
+            #[inline]
+            fn encode_to_buf(self, string: &mut Vec<u8>) {
+                self.encode(string)
+            }
+
+            #[inline]
+            fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
+                self.encode(string);
+                string.extend(separator.as_bytes());
+            }
+
+            #[inline]
+            #[cfg(feature = "feat-string-ext-bytes")]
+            fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
+                self.encode_bytes(string)
+            }
+
+            #[inline]
+            #[cfg(feature = "feat-string-ext-bytes")]
+            fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
+                self.encode_bytes(string);
+                string.extend(separator.as_bytes());
+            }
+        }
+
+        impl<const B: u8, const U: bool, const R: usize, const M: usize> StringExtT for NumStr<B, U, R, M, $ty> {}
+
+        impl StringT for $ty {
+            #[inline]
+            fn encode_to_buf(self, string: &mut Vec<u8>) {
+                NumStr::new_default(self).encode_to_buf(string)
+            }
+
+            #[inline]
+            fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str) {
+                NumStr::new_default(self).encode_to_buf_with_separator(string, separator)
+            }
+
+            #[inline]
+            #[cfg(feature = "feat-string-ext-bytes")]
+            fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
+                NumStr::new_default(self).encode_to_bytes_buf(string)
+            }
+
+            #[inline]
+            #[cfg(feature = "feat-string-ext-bytes")]
+            fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
+                NumStr::new_default(self).encode_to_bytes_buf_with_separator(string, separator)
+            }
+        }
+
+        impl StringExtT for $ty {}
+    };
 }
 
 impl_num_str!(UNSIGNED: u8 u16 u32 u64 u128 usize);
 impl_num_str!(SIGNED: i8 as u8; i16 as u16; i32 as u32; i64 as u64; i128 as u128; isize as usize);
 impl_num_str!(FLOAT: f32 f64);
+impl_for_shared_ref!(COPIED: u8 u16 u32 u64 u128 usize i8 i16 i32 i64 i128 isize f32 f64);
 
 #[cfg(test)]
 #[allow(clippy::cognitive_complexity)]

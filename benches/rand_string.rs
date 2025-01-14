@@ -1,7 +1,7 @@
 #![allow(missing_docs)]
 
 use criterion::{criterion_group, criterion_main, Criterion};
-use macro_toolset::string_v2::{RandHexStr, RandStr, StringExtT};
+use macro_toolset::string::{RandHexStr, RandStr, StringExtT};
 
 fn bench_rand_string(c: &mut Criterion) {
     let mut group = c.benchmark_group("RandString");
