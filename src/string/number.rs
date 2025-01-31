@@ -324,7 +324,6 @@ macro_rules! impl_num_str {
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 /// Encode the number to the str
                 pub fn encode_bytes(self, string: &mut bytes::BytesMut) {
                     let current_ptr = string.len();
@@ -399,7 +398,6 @@ macro_rules! impl_num_str {
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 /// Encode the number to the str
                 pub fn encode_bytes(self, string: &mut bytes::BytesMut) {
                     if self.is_negative() {
@@ -465,7 +463,6 @@ macro_rules! impl_num_str {
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 /// Encode the number to the str
                 pub fn encode_bytes(mut self, string: &mut bytes::BytesMut) {
                     if U {
@@ -531,13 +528,11 @@ macro_rules! impl_num_str {
             }
 
             #[inline]
-            #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                 self.encode_bytes(string)
             }
 
             #[inline]
-            #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                 self.encode_bytes(string);
                 string.extend(separator.as_bytes());
@@ -558,13 +553,11 @@ macro_rules! impl_num_str {
             }
 
             #[inline]
-            #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                 NumStr::new_default(self).encode_to_bytes_buf(string)
             }
 
             #[inline]
-            #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                 NumStr::new_default(self).encode_to_bytes_buf_with_separator(string, separator)
             }

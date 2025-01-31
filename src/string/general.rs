@@ -17,11 +17,9 @@ impl StringT for () {
     fn encode_to_buf_with_separator(self, _string: &mut Vec<u8>, _separator: &str) {}
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf(self, _string: &mut bytes::BytesMut) {}
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, _string: &mut bytes::BytesMut, _separator: &str) {}
 }
 
@@ -39,13 +37,11 @@ impl<T: StringT> StringT for Box<T> {
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
         (*self).encode_to_bytes_buf(string);
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
         (*self).encode_to_bytes_buf_with_separator(string, separator);
     }
@@ -69,7 +65,6 @@ impl<T: StringT> StringT for Option<T> {
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
         if let Some(inner) = self {
             inner.encode_to_bytes_buf(string);
@@ -77,7 +72,6 @@ impl<T: StringT> StringT for Option<T> {
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
         if let Some(inner) = self {
             inner.encode_to_bytes_buf_with_separator(string, separator);
@@ -119,7 +113,6 @@ impl<T: StringT, E> StringT for Result<T, E> {
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
         if let Ok(inner) = self {
             inner.encode_to_bytes_buf(string);
@@ -127,7 +120,6 @@ impl<T: StringT, E> StringT for Result<T, E> {
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
         if let Ok(inner) = self {
             inner.encode_to_bytes_buf_with_separator(string, separator);

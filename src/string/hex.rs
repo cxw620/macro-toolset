@@ -103,13 +103,11 @@ impl<const N: usize, const P: bool, const U: bool> StringT for HexStr<'_, N, P, 
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
         self.encode(string);
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
         self.encode(string);
         string.extend(separator.as_bytes());
@@ -131,13 +129,11 @@ impl<const N: usize, const P: bool> StringT for const_hex::Buffer<N, P> {
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
         string.extend(self.as_bytes());
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
         string.extend(self.as_bytes());
         string.extend(separator.as_bytes());

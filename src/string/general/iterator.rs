@@ -62,7 +62,6 @@ where
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
         for item in self.inner {
             item.encode_to_bytes_buf(string);
@@ -70,7 +69,6 @@ where
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
         for item in self.inner {
             item.encode_to_bytes_buf_with_separator(string, separator);
@@ -115,13 +113,11 @@ where
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
         str_iter_wrapper!(self.into_iter()).encode_to_bytes_buf(string);
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
         str_iter_wrapper!(self.into_iter()).encode_to_bytes_buf_with_separator(string, separator);
     }
@@ -166,13 +162,11 @@ macro_rules! impl_for_array_or_slice_like {
             }
 
             #[inline]
-            #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                 str_iter_wrapper!(self.into_iter()).encode_to_bytes_buf(string);
             }
 
             #[inline]
-            #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                 str_iter_wrapper!(self.into_iter()).encode_to_bytes_buf_with_separator(string, separator);
             }

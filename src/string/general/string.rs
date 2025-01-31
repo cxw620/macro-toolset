@@ -50,13 +50,11 @@ macro_rules! impl_for_string {
             }
 
             #[inline]
-            #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                 string.extend(self.as_bytes());
             }
 
             #[inline]
-            #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                 string.extend(self.as_bytes());
                 string.extend(separator.as_bytes());
@@ -93,7 +91,6 @@ impl StringT for char {
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
         // ! '�' != "�" in utf8 world. see [`String::push`].
         match self.len_utf8() {
@@ -102,7 +99,6 @@ impl StringT for char {
         }
     }
 
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
         self.encode_to_bytes_buf(string);
         string.extend(separator.as_bytes());

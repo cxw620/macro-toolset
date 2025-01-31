@@ -13,11 +13,9 @@ macro_rules! impl_for_extern_type {
             }
 
             #[inline]
-            #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf($self: Self, $arg: &mut bytes::BytesMut) $block
 
             #[inline]
-            #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, _separator: &str) {
                 self.encode_to_bytes_buf(string);
             }
@@ -42,7 +40,6 @@ impl super::StringT for ammonia::Document {
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
         use bytes::BufMut;
 
@@ -51,7 +48,6 @@ impl super::StringT for ammonia::Document {
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, _separator: &str) {
         self.encode_to_bytes_buf(string);
     }
@@ -73,14 +69,12 @@ impl<'a, I: Iterator<Item = B> + Clone, B: std::borrow::Borrow<chrono::format::I
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
         // TODO: Avoid allocation here, though chrono doesn't provide a way to do so.
         string.extend(self.to_string().as_bytes());
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, _separator: &str) {
         self.encode_to_bytes_buf(string);
     }

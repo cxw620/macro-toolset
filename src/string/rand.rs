@@ -110,7 +110,6 @@ impl<const L: usize, const RP: usize, const LP: usize> StringT for RandHexStr<L,
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
         match L {
             1..=16 => {
@@ -146,7 +145,6 @@ impl<const L: usize, const RP: usize, const LP: usize> StringT for RandHexStr<L,
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
         self.encode_to_bytes_buf(string);
         string.extend(separator.as_bytes());
@@ -258,7 +256,6 @@ impl<const L: usize> StringT for RandStr<'_, L> {
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
         if self.0.is_empty() {
             return;
@@ -272,7 +269,6 @@ impl<const L: usize> StringT for RandStr<'_, L> {
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
         if self.0.is_empty() {
             return;

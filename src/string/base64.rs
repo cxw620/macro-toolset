@@ -111,7 +111,6 @@ pub mod b64_padding {
                     }
 
                     #[inline]
-                    #[cfg(feature = "feat-string-ext-bytes")]
                     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                         let inner = self.inner.as_ref();
 
@@ -137,7 +136,6 @@ pub mod b64_padding {
                     }
 
                     #[inline]
-                    #[cfg(feature = "feat-string-ext-bytes")]
                     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                         self.encode_to_bytes_buf(string);
                         string.extend(separator.as_bytes());
@@ -167,7 +165,6 @@ pub mod b64_padding {
                     }
 
                     #[inline]
-                    #[cfg(feature = "feat-string-ext-bytes")]
                     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                         use base64::Engine;
 
@@ -181,7 +178,6 @@ pub mod b64_padding {
                     }
 
                     #[inline]
-                    #[cfg(feature = "feat-string-ext-bytes")]
                     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                         self.encode_to_bytes_buf(string);
                         string.extend(separator.as_bytes());
@@ -206,7 +202,6 @@ pub mod b64_padding {
                     }
 
                     #[inline]
-                    #[cfg(feature = "feat-string-ext-bytes")]
                     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                         use base64::Engine;
 
@@ -216,7 +211,6 @@ pub mod b64_padding {
                     }
 
                     #[inline]
-                    #[cfg(feature = "feat-string-ext-bytes")]
                     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                         self.encode_to_bytes_buf(string);
                         string.extend(separator.as_bytes());
@@ -245,7 +239,6 @@ pub mod b64_padding {
                     }
 
                     #[inline]
-                    #[cfg(feature = "feat-string-ext-bytes")]
                     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                         use base64::Engine;
 
@@ -258,7 +251,6 @@ pub mod b64_padding {
                     }
 
                     #[inline]
-                    #[cfg(feature = "feat-string-ext-bytes")]
                     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                         self.encode_to_bytes_buf(string);
                         string.extend(separator.as_bytes());

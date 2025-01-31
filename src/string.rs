@@ -182,7 +182,6 @@ impl PushAnyT for Vec<u8> {
     }
 }
 
-#[cfg(feature = "feat-string-ext-bytes")]
 impl PushAnyT for bytes::BytesMut {
     #[inline]
     fn push_any<V>(&mut self, value: V)
@@ -213,11 +212,9 @@ pub trait StringT {
     /// The will be a tailing separator.
     fn encode_to_buf_with_separator(self, string: &mut Vec<u8>, separator: &str);
 
-    #[cfg(feature = "feat-string-ext-bytes")]
     /// Push the value to the string (the underlying `bytes::BytesMut`).
     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut);
 
-    #[cfg(feature = "feat-string-ext-bytes")]
     /// Push the value to the string (the underlying `bytes::BytesMut`) with a
     /// separator.
     ///
@@ -297,13 +294,11 @@ macro_rules! impl_for_shared_ref {
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (*self).encode_to_bytes_buf(string);
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                     (*self).encode_to_bytes_buf_with_separator(string, separator);
                 }
@@ -323,13 +318,11 @@ macro_rules! impl_for_shared_ref {
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (*self).encode_to_bytes_buf(string);
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                     (*self).encode_to_bytes_buf_with_separator(string, separator);
                 }
@@ -349,13 +342,11 @@ macro_rules! impl_for_shared_ref {
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (**self).encode_to_bytes_buf(string);
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                     (**self).encode_to_bytes_buf_with_separator(string, separator);
                 }
@@ -375,13 +366,11 @@ macro_rules! impl_for_shared_ref {
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (**self).encode_to_bytes_buf(string);
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                     (**self).encode_to_bytes_buf_with_separator(string, separator);
                 }
@@ -401,13 +390,11 @@ macro_rules! impl_for_shared_ref {
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (**self).encode_to_bytes_buf(string);
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                     (**self).encode_to_bytes_buf_with_separator(string, separator);
                 }
@@ -427,13 +414,11 @@ macro_rules! impl_for_shared_ref {
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (***self).encode_to_bytes_buf(string);
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                     (***self).encode_to_bytes_buf_with_separator(string, separator);
                 }
@@ -459,13 +444,11 @@ macro_rules! impl_for_shared_ref {
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                     (&*self).encode_to_bytes_buf(string);
                 }
 
                 #[inline]
-                #[cfg(feature = "feat-string-ext-bytes")]
                 fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                     (&*self).encode_to_bytes_buf_with_separator(string, separator);
                 }
@@ -496,13 +479,11 @@ macro_rules! impl_for_wrapper {
             }
 
             #[inline]
-            #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
                 (&*self.inner).encode_to_bytes_buf(string);
             }
 
             #[inline]
-            #[cfg(feature = "feat-string-ext-bytes")]
             fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
                 (&*self.inner).encode_to_bytes_buf_with_separator(string, separator);
             }

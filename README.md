@@ -42,6 +42,10 @@ The features listed in `Cargo.toml`:
 
 This crate is currently intended for personal use mostly, but contributions are welcome.
 
+## WIP
+
+`no_std` support (0.9.0?).
+
 ## Migration from 0.7.X to 0.8.0
 
 The most significant change is that `StringExt` is removed and just use std `String` with trait `PushAnyT` instead.

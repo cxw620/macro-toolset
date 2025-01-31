@@ -57,7 +57,6 @@ where
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
         let mut buf = Vec::with_capacity(64);
         self.inner.encode_to_buf(&mut buf);
@@ -74,7 +73,6 @@ where
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
         self.encode_to_bytes_buf(string);
         string.extend(separator.as_bytes());
@@ -138,7 +136,6 @@ where
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf(self, string: &mut bytes::BytesMut) {
         let encoded_bytes = self.inner.as_ref().as_bytes();
 
@@ -169,7 +166,6 @@ where
     }
 
     #[inline]
-    #[cfg(feature = "feat-string-ext-bytes")]
     fn encode_to_bytes_buf_with_separator(self, string: &mut bytes::BytesMut, separator: &str) {
         self.encode_to_bytes_buf(string);
         string.extend(separator.as_bytes());
