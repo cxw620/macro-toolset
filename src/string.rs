@@ -142,7 +142,8 @@ impl PushAnyT for String {
     where
         V: StringT,
     {
-        #[allow(unsafe_code, reason = "safe because of the `StringT` trait")]
+        // safe because of the `StringT` trait
+        #[allow(unsafe_code)]
         value.encode_to_buf(unsafe { self.as_mut_vec() });
     }
 
@@ -151,7 +152,8 @@ impl PushAnyT for String {
     where
         V: StringT,
     {
-        #[allow(unsafe_code, reason = "safe because of the `StringT` trait")]
+        // safe because of the `StringT` trait
+        #[allow(unsafe_code)]
         let inner = unsafe { self.as_mut_vec() };
 
         value.encode_to_buf_with_separator(inner, sep);

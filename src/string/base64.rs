@@ -50,7 +50,7 @@ pub mod b64_padding {
                         }
                     }
 
-                    #[allow(unsafe_code, reason = "Calling this means the decoded string can be invalid UTF-8")]
+                    #[allow(unsafe_code)]
                     #[inline]
                     /// Create a new [`Base64Str`], and finally decode the inner Base64 string.
                     ///
@@ -325,7 +325,7 @@ impl<T: AsRef<[u8]>, P, C> AsRef<[u8]> for Base64Str<T, P, C> {
     }
 }
 
-#[allow(unsafe_code, reason = "test unsafe")]
+#[allow(unsafe_code)]
 #[cfg(test)]
 mod test {
     use super::*;

@@ -1,6 +1,6 @@
 [package]
 name = "macro-toolset"
-version = "0.8.0"
+version = "0.8.1"
 edition = "2021"
 rust-version = "1.75.0"
 
@@ -125,7 +125,7 @@ unreachable_pub = "warn"
 # See: https://rust-lang.github.io/rust-clippy/master/index.html for more details.
 
 # Checks for attributes that allow lints without a reason.
-allow_attributes_without_reason = "warn"
+# allow_attributes_without_reason = "warn" // 1.81.0
 # Checks for `assert!(r.is_ok())` or `assert!(r.is_err())` calls, just `unwrap()` instead.
 assertions_on_result_states = "warn"
 # Checks for code like `foo = bar.clone()`; use `Clone::clone_from()` instead.

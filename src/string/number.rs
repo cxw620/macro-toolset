@@ -432,7 +432,7 @@ macro_rules! impl_num_str {
                     #[cfg(feature = "feat-string-ext-ryu")]
                     string.extend(ryu::Buffer::new().format(self.0).as_bytes());
 
-                    #[allow(unsafe_code, reason = "must be valid utf8")]
+                    #[allow(unsafe_code)]
                     match unsafe { std::str::from_utf8_unchecked(string) }.rfind('.') {
                         Some(dot_pos) if self.0.is_finite() => {
                             if U {
@@ -480,7 +480,7 @@ macro_rules! impl_num_str {
                     #[cfg(feature = "feat-string-ext-ryu")]
                     string.extend(ryu::Buffer::new().format(self.0).as_bytes());
 
-                    #[allow(unsafe_code, reason = "must be valid utf8")]
+                    #[allow(unsafe_code)]
                     match unsafe { std::str::from_utf8_unchecked(string) }.rfind('.') {
                         Some(dot_pos) if self.0.is_finite() => {
                             if U {

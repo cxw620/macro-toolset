@@ -72,7 +72,8 @@ macro_rules! b64_encode {
 
         // Allocate buffer
         let mut bytes_buf = bytes::BytesMut::with_capacity(target_len);
-        #[allow(unsafe_code, reason = "`target_len` is the exact length of the base64 string.")]
+        // `target_len` is the exact length of the base64 string.
+        #[allow(unsafe_code)]
         unsafe {
             bytes_buf.set_len(target_len)
         };
@@ -88,7 +89,8 @@ macro_rules! b64_encode {
 
         // Allocate buffer
         $bytes_buf.reserve(target_len);
-        #[allow(unsafe_code, reason = "`target_len` is the exact length of the base64 string.")]
+        // `target_len` is the exact length of the base64 string.
+        #[allow(unsafe_code)]
         unsafe {
             $bytes_buf.set_len(target_len)
         };
